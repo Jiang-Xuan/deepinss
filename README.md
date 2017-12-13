@@ -1,73 +1,30 @@
 ## Welcome to SSS
 
-You can use the [editor on GitHub](https://github.com/Jiang-Xuan/deepinss/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+该项目始于 2017.12.13 , 致力于让每个人读懂 shadowsocks 的源码, 项目被命名为 SSS, 理解成 shadowsocks study, 或者是 study shadowsocks 都可.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+该项目是我定于 2018 年完成的目标.
 
-### Markdown
+我是 google 的忠实粉丝, 也经常使用 Wikipedia. 由于 SS 现在过于明显, 总有一天会有被检测出来的风险, 与其静待被封, 不如看下源码, 理解下原理, 也许有一天可以为下一代的科学上网奉献一份力量.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
-```markdown
-Syntax highlighted code block
+### 起源
 
-## Header 1
-## Header 2
-### Header 3
+在我的第一台 Linode 被封的时候就诞生了这个想法, 但是作为一名底层前端开发攻城狮, 对于网络协议, 加密算法, socket 编程还是有所畏惧, 在第二台 Linode 被限速的时候终于决定要读一读源码.
 
-- Bulleted
-- List
+### 关于写这个项目
 
-1. Numbered
-2. List
+也许有很多人都诞生了读源码的想法, 但是 python 版本的 shadowsocks 的源码注释还是不足, 我希望可以用文档记录下来, 在我看源码的时候接触到了很多需要记录下来的地方, 有 shadowsocks 里用到的, 还有 shadowsocks 依赖里面用到的.
 
-**Bold** and _Italic_ and `Code` text
+我是极客思维, 每一个参数, 每一个变量, 每一个单词缩写, 这些的含义我都想知道. 为此付出了很多, 有时候为了一个单词的缩写, Google, Stack Overflow, Wikipedia, 官方文档, 全部翻遍, 仅仅是为了一个变量的全称是什么, 在这期间也看到了很多人都有这样的想法, 记录下来这些都可以对 SS 的源码阅读有帮助, 这也不仅仅是 SS 的源码解读, 包含 python 的一些模块, openssl, 以及加密, 混淆, 摘要算法, socket编程. 也是这些技术成就了 SS, 致敬开源.
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Jiang-Xuan/deepinss/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
-
-### Hello, World
-
-<ul>
-  {% for post in site.posts %}
-    <li>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-    </li>
-  {% endfor %}
-</ul>
+### 获取源码
 
 ```shell
-+-----------------------------------------------------------------------------------------------------------------------+
-| +--------------+                             +--------------+                           +-----------------+           |
-| |   Browser    |                             |   local.py   |                           |   server.py     |           |
-| |              |                             |              |                           |                 |           |
-| |              |  --------------------------------------------------- up stream ----->  |                 |           |
-| |              |                                                                        |                 |           |
-| |              |  <---- down stream --------------------------------------------------  |                 |           |
-| |              |                             |              |                           |                 |           |
-| |              |  <------- poll out  ------  |              |  <---- poll in     ----   |                 |           |
-| |  Browser sk >|                             |< lsk    rsk >|                           |< sk             |           |
-| |              |  -------- poll in   ----->  |              |  ----- poll out    ---->  |                 |           |
-| |              |                             |              |                           |                 |           |
-| +--------------+                             +--------------+                           +-----------------+           |
-+-----------------------------------------------------------------------------------------------------------------------+
-
-当本地 _local_sock 数据全部传送至 Browser, 这是属于 down stream, 数据写给浏览器之后, 等待浏览器回应, down stream 等待读(浏览器数据传送过来的时候), 如果这时候 up stream 的状态是 WAIT_READING, 说明是正常的流程下, 如果是 up stream 处于 WAIT_WRIEING 的状态下, 此时就不能读取 down stream 传送过来的数据, 因为应该传送给 server.py 的数据还没有传送完毕
-
-# The comment of author                            #
-# for each handler, we have 2 stream directions:   #
-#    upstream:    from client to server direction  #
-#                 read local and write to remote   # read lsk and write to rsk
-#    downstream:  from server to client direction  #
-#                 read remote and write to local   # read rsk and write to lsk
+git clone https://github.com/shadowsocks/shadowsocks.git
 ```
+
+克隆下 shadowsocks 主仓库, 该仓库目前有两个分支, **rm**分支的源代码被移除, **master**分支的代码依旧是可用.
+
+### 项目维护者
+
+1. [Jiang Xuan](https://github.com/Jiang-Xuan)
