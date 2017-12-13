@@ -1,0 +1,1 @@
+# How to use jekyll write post

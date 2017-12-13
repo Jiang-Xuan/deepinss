@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Welcome to SSS
 
 You can use the [editor on GitHub](https://github.com/Jiang-Xuan/deepinss/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
@@ -11,7 +11,7 @@ Markdown is a lightweight and easy-to-use syntax for styling your writing. It in
 ```markdown
 Syntax highlighted code block
 
-# Header 1
+## Header 1
 ## Header 2
 ### Header 3
 
@@ -37,3 +37,37 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
 
 ### Hello, World
+
+<ul>
+  {% for post in site.posts %}
+    <li>
+      <a href="{{ post.url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+```shell
++-----------------------------------------------------------------------------------------------------------------------+
+| +--------------+                             +--------------+                           +-----------------+           |
+| |   Browser    |                             |   local.py   |                           |   server.py     |           |
+| |              |                             |              |                           |                 |           |
+| |              |  --------------------------------------------------- up stream ----->  |                 |           |
+| |              |                                                                        |                 |           |
+| |              |  <---- down stream --------------------------------------------------  |                 |           |
+| |              |                             |              |                           |                 |           |
+| |              |  <------- poll out  ------  |              |  <---- poll in     ----   |                 |           |
+| |  Browser sk >|                             |< lsk    rsk >|                           |< sk             |           |
+| |              |  -------- poll in   ----->  |              |  ----- poll out    ---->  |                 |           |
+| |              |                             |              |                           |                 |           |
+| +--------------+                             +--------------+                           +-----------------+           |
++-----------------------------------------------------------------------------------------------------------------------+
+
+当本地 _local_sock 数据全部传送至 Browser, 这是属于 down stream, 数据写给浏览器之后, 等待浏览器回应, down stream 等待读(浏览器数据传送过来的时候), 如果这时候 up stream 的状态是 WAIT_READING, 说明是正常的流程下, 如果是 up stream 处于 WAIT_WRIEING 的状态下, 此时就不能读取 down stream 传送过来的数据, 因为应该传送给 server.py 的数据还没有传送完毕
+
+# The comment of author                            #
+# for each handler, we have 2 stream directions:   #
+#    upstream:    from client to server direction  #
+#                 read local and write to remote   # read lsk and write to rsk
+#    downstream:  from server to client direction  #
+#                 read remote and write to local   # read rsk and write to lsk
+```
