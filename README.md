@@ -4,6 +4,9 @@
   {% for post in site.posts %}
     <li>
       <a href=".{{ post.url }}">{{ post.title }}</a>
+      <!-- post.url 的链接是 / 根目录 -->
+      <!-- 但是 github.io 是带有 deepinss 前缀的 -->
+      <!-- 所以这里加了个点, 表示相对路径 -->
     </li>
   {% endfor %}
 </ul>
