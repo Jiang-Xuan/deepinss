@@ -34,6 +34,12 @@ from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, asyncdns
 ```
 从 shadowsocks 模块引入需要的
 
+### 页内目录
+
+* [shell.check_python](#shellcheck_python)
+
+### Code
+
 ```python
 @shell.exception_handle(self_=False, exit_code=1) # shell 模块中捕获错误的工具
 def main(): # local.py 主函数
@@ -71,4 +77,34 @@ def main(): # local.py 主函数
 
     daemon.set_user(config.get('user', None))
     loop.run()
+```
+
+## shell.check_python
+
+```python
+def check_python():
+    info = sys.version_info # 获取 version
+    if info[0] == 2 and not info[1] >= 6: # 如果处于 2.x 版本, 但是
+        print('Python 2.6+ required')
+        sys.exit(1) # 退出
+    elif info[0] == 3 and not info[1] >= 3:
+        print('Python 3.3+ required')
+        sys.exit(1)
+    elif info[0] not in [2, 3]:
+        print('Python version not supported')
+        sys.exit(1)
+```
+* sys.version_info: <https://docs.python.org/2.7/library/sys.html#sys.version_info>
+* sys.exit: <https://docs.python.org/2.7/library/sys.html#sys.exit>
+
+```shell
+                                     |--------- < 2.5.x 不支持, 退出
+              |--------> 2.x.x ------|
+              |                      |--------- <= 2.6.x && <= 2.9.x 支持
+              |                      
+              |                      |--------- < 3.3.x 不支持, 退出
+x.x.x --------|--------> 3.x.x ------|
+              |                      |--------- > 3.3.x 支持
+              |
+              |--------> x.x.x 不支持
 ```
