@@ -8,7 +8,7 @@ SS 分为 local 端 和 server 端, 我们的请求发给 local 端, local 端�
 
 来画张图看看
 
-* SwitchyOmega: 非常方便的管理代理的浏览器插件, 它会告诉浏览器是否需要代理, 以及代理的协议和地址是多少
+* [SwitchyOmega](https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif?hl=en): 非常方便的管理代理的浏览器插件, 它会告诉浏览器是否需要代理, 以及代理的协议和地址是多少
 * ¬ : 这个符号代表的是换行, 为了不占据过多的屏幕横向空间, 我自己添加的换行, 这个符号不是数据中有的.
 * 握手包的具体含义会在后续解释, 如果你迫切想知道 => <https://zh.wikipedia.org/wiki/SOCKS>
 
@@ -33,8 +33,8 @@ Browser --> Browser内置 socks5 客户端改写该HTTP请求
         |      |
         |     \|/
   SS local 端(在第四个握手包 socks5 客户端确认之后, socks5 客户端会将真实的 HTTP请求头发过来)
-       /|\     | 根据预共享的加密算法和 password 进行 (加密:↓) / (解密:↑) 数据
-        |      | (发送给 SS server 端:↓) / (发送给浏览器:↑)
+       /|\     | 根据预共享的加密算法和 password 进行 (加密:↓) / (发送给浏览器:↑) 数据
+        |      | (发送给 SS server 端:↓) / (解密:↑)
         |      | 
         |      |
         |      |
