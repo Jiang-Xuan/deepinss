@@ -319,6 +319,10 @@ def find_config():
 
 这一行代码是最重要的, 用来创建 TCP 服务, 这一点将是我们接下来讲解的重点
 
+## udp_server = udprelay.UDPRelay(config, dns_resolver, True)
+
+这一行是 udp 服务的核心, 但是我们最常用的不是这个, 先行不解释, 我们把整个 local 端的基础服务先解释一遍
+
 ### 下一节
 
 下一节我们讲解 tcpreply 这个模块, 这个模块是 TCP 服务的核心, 也是我们平常用的最多的服务!!!
