@@ -276,12 +276,15 @@ def get_config(is_local):
     else:
         level = logging.INFO
     verbose = config['verbose']
+    # 根据config参数配置logging
     logging.basicConfig(level=level,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
 
+    # 检查config文件, 主要是检查配置的加密算法是否由本机支持
     check_config(config, is_local)
 
+    # 返回config参数, 运行到这里说明所有的参数都是符合要求的
     return config
 ```
 
