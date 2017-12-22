@@ -53,6 +53,7 @@ def main(): # local.py 主函数
         os.chdir(p)
     # 获取配置文件 传入参数, 表明是 local
     config = shell.get_config(True)
+    # 是否启动守护模式, 暂不解释
     daemon.daemon_exec(config)
     # log 启动地址
     logging.info("starting local at %s:%d" %
@@ -238,7 +239,7 @@ def get_config(is_local):
         print_help(is_local)
         sys.exit(2)
 
-    # 格式化完毕参数, 开始整体参数, 如果没有指定, 启用默认参数
+    # 格式化完毕参数, 开始整理参数, 如果没有指定, 启用默认参数
     config['password'] = to_bytes(config.get('password', b''))
     config['method'] = to_str(config.get('method', 'aes-256-cfb'))
     config['port_password'] = config.get('port_password', None)
