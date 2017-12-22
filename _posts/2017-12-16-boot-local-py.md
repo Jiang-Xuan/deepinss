@@ -306,3 +306,19 @@ def find_config():
 
 * os.path.exists: <https://docs.python.org/2.7/library/os.path.html#os.path.exists>
 * os.path.join: <https://docs.python.org/2.7/library/os.path.html#os.path.join>
+
+## daemon.daemon_exec
+
+这里主要是用来守护 SS 的程序, 但是不影响主流程, 现在不做解释
+
+## dns_resolver = asyncdns.DNSResolver()
+
+这一行代码是为了创建 关于 DNS 的处理, 在 local 端我们一般填写的服务器的地址是 IP 地址, 所以我们暂时也不做解释
+
+## tcp_server = tcprelay.TCPRelay(config, dns_resolver, True)
+
+这一行代码是最重要的, 用来创建 TCP 服务, 这一点将是我们接下来讲解的重点
+
+### 下一节
+
+下一节我们讲解 tcpreply 这个模块, 这个模块是 TCP 服务的核心, 也是我们平常用的最多的服务!!!
