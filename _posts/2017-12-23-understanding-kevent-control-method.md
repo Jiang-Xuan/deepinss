@@ -18,7 +18,7 @@ title: '透过 C 源码🔧深入理解 python 的 select.kqueue.control 方法'
 >
 > 引至: [Python-kqueue-control][Python-kqueue-control]
 
-很可惜, 官方文档提供的很有限, 只是说这是一个 `kevent` 的底层接口, 没有了其他的介绍, 对于不熟悉系统级别编程的人理解有点难度, 所以我们只能通过看源码理解原理
+很可惜, 官方文档提供的很有限, 只是说这是一个 `kevent` 的底层接口, 没有了其他的介绍. 对于不熟悉系统级别编程的人理解有点难度, 所以我们只能通过看源码理解原理.
 
 select 模块不是 python 代码, 而是 C 代码, 在 `help(select)` 里面的地址看到的是一个后缀为 `.so` 的文件.
 
@@ -48,7 +48,6 @@ kqueue_queue_control(kqueue_queue_Object *self, PyObject *args)
 {
  ...
 }
-
 ```
 
 这里的参数
@@ -147,7 +146,7 @@ if (ch != NULL && ch != Py_None) {
 2. 看一下这里面的逻辑 `for (i = 0; i < nchanges; ++i) { ... }`
 * `ei = PySequence_Fast_GET_ITEM(seq, i);` 获取 `seq` 里面的 一个 `kevent`
 * `if (!kqueue_event_Check(ei)) { ... }` 检查是不是 `kevent` 如果不是, 抛出错误
-* `chl[i] = ((kqueue_event_Object *)ei)->e;` 获取 `kqueue_event_Object` 里面存储的 `kevent` 结构体, `kqueue_event_Object` 这个不是原生的 `kevent` 结构体, 把 `kevent` 封装了一层
+* `chl[i] = ((kqueue_event_Object *)ei)->e;` 获取 `kqueue_event_Object` 里面存储的 `kevent` 结构体, `kqueue_event_Object` 这个不是原生的 `kevent` 结构体, 而是把 `kevent` 封装了一层
 * 循环结束之后, `chl` 数组变量里面储存了我们传递过去的 `kevent`
 
 3. `if (nevents) { ... }` 要取出来多少事件, 在这里创建 `evl` 存放事件结果的数组, 如果创建出错, 抛出错误
@@ -165,10 +164,6 @@ if (ch != NULL && ch != Py_None) {
 9. `PyMem_Free(evl);` 释放 evl 内存
 
 10. `return result;` 返回 result, 也就是我们调用 control 之后拿到的 list, 里面存放着 `kqueue_event_Object` 结构体
-
-11. 文档
-
-![images](/assets/images/selectmodule.png)
 
 ## Notes
 
