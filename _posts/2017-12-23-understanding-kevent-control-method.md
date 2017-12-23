@@ -165,6 +165,88 @@ if (ch != NULL && ch != Py_None) {
 
 10. `return result;` 返回 result, 也就是我们调用 control 之后拿到的 list, 里面存放着 `kqueue_event_Object` 结构体
 
+## C 代码中有很多系统调用, 可以深究一下 FreeBSD 的文档
+
+本节来自 [freebsd][man-kqueue-kevent] 的官方文档.
+
+### NAME
+
+```plaintext
+kqueue, kevent -- kernel event notification mechanism
+```
+
+kqueue, kevent -- 内核事件通知机制
+
+### LIBRARY
+
+```plaintext
+Standard C	Library	(libc, -lc)
+```
+
+标准的 C 库文件
+
+### SYNOPSIS
+
+```c
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+
+int
+kqueue(void);
+
+int
+kevent(int	kq, const struct kevent	*changelist, int nchanges,
+struct	kevent *eventlist, int nevents,
+const struct timespec *timeout);
+
+EV_SET(kev, ident,	filter,	flags, fflags, data, udata);
+```
+
+### DESCRIPTION
+
+```plaintext
+The kqueue() system call provides a generic method	of notifying the user
+when an event happens or a	condition holds, based on the results of small
+pieces of kernel code termed filters.  A kevent is	identified by the
+(ident, filter) pair; there may only be one unique	kevent per kqueue.
+```
+
+kqueue()系统调用提供一个普通的方法来通知调用者当一个事件发生或者是条件成立,
+基于一小块内核代码被称为 `filter` 的结果(译者注: 基于 `filter` 过滤器过滤出来的结果, 这段代码就是过滤器). 一个 kevent 通过(ident, filter)对进行唯一标识, 每一个 kqueue 只能包含一个独特的 kqueue.(译者注: kqueue里面的所有 kevent 都不能相同)
+
+```plaintext
+The kevent() system call is used to register events with the queue, and
+return any	pending	events to the user.  The changelist argument is	a
+pointer to	an array of kevent structures, as defined in <sys/event.h>.
+All changes contained in the changelist are applied before	any pending
+events are	read from the queue.  The nchanges argument gives the size of
+changelist.  The eventlist	argument is a pointer to an array of kevent
+structures.  The nevents argument determines the size of eventlist.  When
+nevents is	zero, kevent() will return immediately even if there is	a
+timeout specified unlike select(2).  If timeout is	a non-NULL pointer, it
+specifies a maximum interval to wait for an event,	which will be inter-
+preted as a struct	timespec.  If timeout is a NULL	pointer, kevent()
+waits indefinitely.  To effect a poll, the	timeout	argument should	be
+non-NULL, pointing	to a zero-valued timespec structure.  The same array
+may be used for the changelist and	eventlist.
+```
+
+kevent() 系统调用时用来注册在队列中的事件, 并且返回 `pending` 事件给调用者. `changelist` 参数是一个指针, 指向一个数组, 数组里是 kevent 结构体, 定义在 `<sys/event.h>` 中. 在从队列中读取任何挂起的事件之前, 所有包含在 changelist 中的改变会被应用. `nchanges` 参数表明 `changelist` 的 size. `eventlist` 参数是一个指针, 指向一个数组, 数组里面是 kevent 结构体. `nevents` 参数表明 `eventlist` 的 size. 当 `nevents` 是0, kevent() 调用将会立即返回, 即使有 timeout 被指定(unlike select(2)). 如果 timeout 是一个 non-NULL 指针, 它指定一个去等待事件的最大的时间间隔, 它将被解释为 一个 timespec 结构体. 如果 timeout 是一个 NULL 指针, kevent 无限期的等待. 去影响一个轮询, timeout 参数应该是 non-NULL或者是指向一个 zero-valued 的 timespec 结构体. 相同的数组可以用在 `changelist` 和 `eventlist`.
+
+```plaintext
+The kevent	structure is defined as:
+
+struct kevent {
+    uintptr_t ident;	     /*	identifier for this event */
+    short     filter;	     /*	filter for event */
+    u_short   flags;	     /*	action flags for kqueue	*/
+    u_int     fflags;	     /*	filter flag value */
+    intptr_t  data;	     /*	filter data value */
+    void      *udata;	     /*	opaque user data identifier */
+};
+```
+
 ## Notes
 
 1. C 语言中, 结构体和函数可以同名, 所以 `struct kevent` 和 `kevent(...)` 调用是两个不同的事情, 这两个 `kevent` 不同!!!
@@ -184,3 +266,4 @@ if (ch != NULL && ch != Py_None) {
 [official-doc-api]: <https://docs.python.org/2.7/library/select.html#kqueue-objects>
 [kqueue-return-value]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2>
 [Python-kqueue-control]: <https://docs.python.org/2.7/library/select.html#select.kqueue.control>
+[man-kqueue-kevent]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2>
