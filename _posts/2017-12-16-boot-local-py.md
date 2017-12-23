@@ -111,6 +111,7 @@ def check_python():
         print('Python version not supported')
         sys.exit(1)
 ```
+
 * sys.version_info: <https://docs.python.org/2.7/library/sys.html#sys.version_info>
 * sys.exit: <https://docs.python.org/2.7/library/sys.html#sys.exit>
 
@@ -323,6 +324,10 @@ def find_config():
 
 这一行是 udp 服务的核心, 但是我们最常用的不是这个, 先行不解释, 我们把整个 local 端的基础服务先解释一遍
 
-### 下一节
+## loop = eventloop.EventLoop()
 
-下一节我们讲解 tcpreply 这个模块, 这个模块是 TCP 服务的核心, 也是我们平常用的最多的服务!!!
+这一行是创建事件轮询器, 它处理者来自系统的各种事件. 我们接下来也会重点的解释着个模块, 这个模块加上 tcprelay 模块, 构成了我们使用频率最高的服务
+
+### 接下来
+
+接下来将会详细的解释 eventloop, tcpreply, 有了这两个我们基本可以走通整个 local 的流程
