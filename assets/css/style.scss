@@ -6,3 +6,12 @@
 .container {
     max-width: 1000px;
 }
+
+p code,
+li code {
+    padding: 2px 4px;
+    font-size: 90%;
+    color: #c7254e;
+    background-color: #1b1b1b;
+    border-radius: 4px;
+}
