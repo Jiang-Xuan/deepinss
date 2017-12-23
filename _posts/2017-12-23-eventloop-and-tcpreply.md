@@ -41,8 +41,24 @@ POLL_IN = 0x01
 POLL_OUT = 0x04
 POLL_ERR = 0x08
 POLL_HUP = 0x10
+POLL_NVAL = 0x20
 ```
 
-* POLL_NULL 用来做掩码运算 00000000
-* POLL_IN 数据流入的标志位 00000001
-* POLL_OUT 数据流出的标志位 00000010
+* POLL_NULL 用来做掩码运算   00000000
+* POLL_IN 数据流入的标志位   00000001
+* POLL_OUT 数据流出的标志位  00000100
+* POLL_ERR 数据出错的标志位  00001000
+* POLL_HUP 数据出错的标志位  00001010
+* POLL_NVAL 数据出错的标志位 00010100
+
+POLLERR 意味着 socket 生成了一个异步错误. 在 TCP 连接中, 这特别指 RST 消息被接收到或者是被发送, 如果这个文件描述符不是一个 socket, POLLERR 可能意味着该设备不支持轮询.
+
+POLLHUP 意味着这个 socket 不再可以连接. 在 TCP 连接中, 这意味着 FIN 消息被接收或者是被发送
+
+POLLNVAL 意味着 socket 文件描述符 没有打开, 这将是一个错误在尝试关闭这个 socket 的时候
+
+A POLLNVAL means the socket file descriptor is not open. It would be an error to close() it.
+
+
+
+> 引至 <https://stackoverflow.com/questions/24791625/how-to-handle-the-linux-socket-revents-pollerr-pollhup-and-pollnval>
