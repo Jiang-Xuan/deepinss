@@ -100,11 +100,15 @@ class KqueueLoop(object):
 
 Kqueue 是一种内核事件通知机制, 是操作系统提供的, 这里用来监听 socket 的[可读/可写]事件.
 
+#### 常量
+
 ```python
 MAX_EVENTS = 1024
 ```
 
 类常量, 定义一次轮询取出来的事件数目的上限.
+
+#### 构造函数
 
 ```python
 def __init__(self):
@@ -121,6 +125,8 @@ KqueueLoop 的构造器, 创建一个 kqueue 内核事件监听队列和一个�
 这个例子表明, KqueueLoop 里面监听了一个 文件描述符为 4, 监听模式为 POLL_IN(00000001) 的事件
 
 Why? 为什么需要这个 `_fds`, 这个是用来在移除 注册该文件描述符事件 的时候使用的, 因为在移除的时候需要传递相同的监听模式, 这样在移除的时候只需要传递文件描述符给 `KqueueEvent` 实例, 而不需要传递监听模式.
+
+#### _control 私有方法
 
 ```python
 def _control(self, fd, mode, flags):
@@ -147,6 +153,8 @@ _control 函数作用是向 _kqueue 里面添加新的 kevent 事件, 下划线�
 
 这里要强调说明一点的是 `self._kqueue.control` 方法, 该方法不是系统调用提供的, 而是 Python 提供的, 深入解释篇幅会用的很多, 为了不打断流程, 将放在一个单独的文章内解释, [前往][understanding-kevent-control-method], 这里传递的参数 0 标识是非阻塞调用.
 
+#### poll 方法
+
 ```python
 def poll(self, timeout):
     if timeout < 0:
@@ -169,6 +177,8 @@ def poll(self, timeout):
 
 在这里会格式化发生事件的对象为 fd -> mode(文件描述符 -> 事件模式或者称之为数据流方向), return 回一个数组 [(fd, mode), (anotherFd, mode)]
 
+#### register 方法
+
 ```python
 def register(self, fd, mode):
     self._fds[fd] = mode
@@ -176,6 +186,8 @@ def register(self, fd, mode):
 ```
 
 用来注册 `socket` 的方法, 所有进入 `Kqueue` 事件队列的都要从这里通过, `_fds` 变量存储了该文件描述符的模式(数据流方向). 传递 `select.KQ_EV_ADD` flag 来标识是添加事件
+
+#### unregister 方法
 
 ```python
 def unregister(self, fd):
@@ -185,6 +197,8 @@ def unregister(self, fd):
 
 用来取消注册 `socket `的方法, 所有想要删除事件的 `socket` 都要经过这里, 从 `_fds` 拿出来添加事件当时的模式(数据流方向), 传递 `select.KQ_EV_DELETE` flag 来标识是删除事件. 从 `Kqueue` 事件队列中移除事件之后, 删除 `_fds` 中关于该文件描述符的模式数据
 
+#### modify 方法
+
 ```python
 def modify(self, fd, mode):
     self.unregister(fd) # 删除注册 file descriptor => mode
@@ -192,6 +206,8 @@ def modify(self, fd, mode):
 ```
 
 用来修改文件描述符的监听模式, 首先需要删除已经注册的事件, 然后重新添加.
+
+#### close 方法
 
 ```python
 def close(self):
@@ -213,6 +229,8 @@ class EventLoop(object):
 2. 根据 (f, mode, handler) 创建相应的监听, 根据 fd 移除监听
 3. 获取发生的事件, 然后处理每一个事件, 将其分发到对应的处理类中
 4. 负责调用被注册的周期性的函数
+
+#### 构造函数
 
 ```python
 def __init__(self):
@@ -236,7 +254,7 @@ def __init__(self):
 
 \_\_init\_\_ 构建函数, 判断 `select` 模块支持的事件机制, 这里只讨论 `kqueue` 事件队列机制, 执行 `self._impl = KqueueLoop()`.
 
-*_impl* 全称为 *implement*
+*\_impl* 全称为 *implement*
 
 _fdmap 是一个对象, 例子如下:
 
@@ -246,6 +264,137 @@ _fdmap 是一个对象, 例子如下:
 }
 ```
 
+在其他的方法中会向 `_fdmap` 中添加数据.
+
+**\_last\_time** 为时间戳
+
+**\_periodic\_callbacks** 为周期性的回调函数
+
+这是一个数组, 存储着在一次事件从获取到处理完成的周期之后的 处理函数, 比如超时 `socket` 的处理, 系统资源的释放等
+
+**_stopping** 是否是停止状态的标志变量
+
+#### poll 方法
+
+```python
+def poll(self, timeout=None):
+    events = self._impl.poll(timeout)
+    return [(self._fdmap[fd][0], fd, event) for fd, event in events]
+```
+
+传入超时时间, 调用事件轮询机制获取发生的事件, 然后根据发生的事件数组来构造新的数组, 根据文件描述符取出来 `socket`, 这里返回的数组举例:
+
+```python
+[
+    (f, fd, event), # (socket 文件. 该 socket 文件的文件描述符, 发生的事件模式(POLL_IN, POLL_OUT)亦称数据流方向)
+    (f, fd, event)
+]
+```
+
+#### add 方法
+
+```python
+def add(self, f, mode, handler): 
+    fd = f.fileno()
+    self._fdmap[fd] = (f, handler)
+    self._impl.register(fd, mode)
+```
+
+参数:
+
+1. f 要监听的 socket 文件
+2. 要监听的模式 (POLL\_IN, POLL\_OUT) 数据流方向
+3. 该 `socket` 的处理器
+
+存储下来 fd -> (f, handler), 调用 `_impl` 注册该文件描述符.
+
+感觉这里就是一段很棒👍的代码, 代码也许并不多高深, 但是将数据存储到了其该存储的地方, `socket` 和 `handler` 这两个变量是 **事件轮询机制(kevent)** 并不关心的, 它需要一个文件描述符和一个 mode(数据流方向) 就可以, 至于是添加还是移除则是由不同的方法确定的. 该类需要的数据是 `socket` 和其的处理器 `handler`, 所以这两个变量存放在了 `EventLoop` 类中.
+
+#### remove
+
+```python
+def remove(self, f):
+    fd = f.fileno() # 获取该 socket 的 file dscriptor
+    del self._fdmap[fd]  # 删除关于该文件描述符 在 _fdmap 中的(f, handler)引用
+    self._impl.unregister(fd) # 解除在 监听器 kqueue(或者是其他) 的注册
+```
+
+根据 `socket` 来移除事件监听
+
+#### add_periodic
+
+```python
+def add_periodic(self, callback): # 添加周期性函数
+    self._periodic_callbacks.append(callback)
+```
+
+添加周期性的函数 `callback`
+
+#### remove_periodic
+
+```python
+def remove_periodic(self, callback):
+    self._periodic_callbacks.remove(callback)
+```
+
+移除周期性的函数 callback
+
+#### modify
+
+```python
+def modify(self, f, mode):
+    fd = f.fileno()
+    self._impl.modify(fd, mode)
+```
+
+根据 `socket` 和传递过来的 `mode` 来修改该 `socket` 的监听模式
+
+#### stop
+
+```python
+def stop(self):
+    self._stopping = True
+```
+
+将 `_stopping` 标志位置为 `True`, 用来 grace(优雅) 停止.
+
+#### run
+
+```python
+def run(self):
+    events = []
+    while not self._stopping:
+        asap = False
+        try:
+            events = self.poll(TIMEOUT_PRECISION) # 取出来所有发生事件的 socket
+        except (OSError, IOError) as e:
+            if errno_from_exception(e) in (errno.EPIPE, errno.EINTR):
+                # EPIPE: Happens when the client closes the connection
+                # EINTR: Happens when received a signal
+                # handles them as soon as possible
+                asap = True
+                logging.debug('poll:%s', e)
+            else:
+                logging.error('poll:%s', e)
+                traceback.print_exc()
+                continue
+
+        for sock, fd, event in events: # 事件 socket 事件文件描述符 事件模式(POLL_IN POLL_OUT)
+            handler = self._fdmap.get(fd, None) # 根据 file descriptor 获取 处理器 shadowsocks.tcpreply.TCPReply
+            if handler is not None:
+                handler = handler[1]
+                try:
+                    handler.handle_event(sock, fd, event)
+                except (OSError, IOError) as e:
+                    shell.print_exception(e)
+        now = time.time()
+        if asap or now - self._last_time >= TIMEOUT_PRECISION:
+            for callback in self._periodic_callbacks:
+                callback()
+            self._last_time = now
+```
+
+终于迎来了 `run` 函数, 注入能量🎆, Power!
 
 [L2540]: <https://github.com/python/cpython/blob/master/Modules/selectmodule.c#L2540>
 [freebsb-kqueue]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2&apropos=0&manpath=FreeBSD+11.1-RELEASE+and+Ports>
