@@ -214,7 +214,7 @@ pieces of kernel code termed filters.  A kevent is	identified by the
 ```
 
 kqueue()系统调用提供一个普通的方法来通知调用者当一个事件发生或者是条件成立,
-基于一小块内核代码被称为 `filter` 的结果(译者注: 基于 `filter` 过滤器过滤出来的结果, 这段代码就是过滤器). 一个 kevent 通过(ident, filter)对进行唯一标识, 每一个 kqueue 只能包含一个独特的 kqueue.(译者注: kqueue里面的所有 kevent 都不能相同)
+基于一小块内核代码被称为 `filter` 的结果(译者注: 基于 `filter` 过滤器过滤出来的结果, 这段代码就是过滤器). 一个 kevent 通过(ident, filter)对进行唯一标识, 每一个 kqueue 只能包含一个独特的 kqueue.(译者注: kqueue里面的所有 kevent 都不能相同).
 
 ```plaintext
 The kevent() system call is used to register events with the queue, and
