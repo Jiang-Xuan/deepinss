@@ -396,6 +396,10 @@ def run(self):
 
 终于迎来了 `run` 函数, 注入能量🎆, Power!
 
+`events` 是发生的事件的数组, `while` 循环, 只要 `_stopping` 标志位为 `False`, 就继续循环.
+
+`asap` 是 as soon as possible 的缩写, 标志着是否应该尽快处理有问题的 `socket`, 因为获取事件的时候有可能出错
+
 [L2540]: <https://github.com/python/cpython/blob/master/Modules/selectmodule.c#L2540>
 [freebsb-kqueue]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2&apropos=0&manpath=FreeBSD+11.1-RELEASE+and+Ports>
 [Python-kqueue-control]: <https://docs.python.org/2.7/library/select.html#select.kqueue.control>
