@@ -76,9 +76,9 @@ The kqueue() system call creates a	new kernel event queue and returns a
      a value of	-1 is returned and errno set.
 ``` 
 
-`kqueue()` 系统调用会创建一个新的内核级别的事件队列并且返回一个文件描述符. 如果创建内核级别的事件队列的时候出现了错误, -1 值会被返回并且设置 `errno`(Error Number)
+`kqueue()` 系统调用会创建一个新的内核级别的事件队列并且返回一个文件描述符. 如果创建内核级别的事件队列的时候出现了错误, -1 值会被返回并且设置 `errno`(Error Number).
 
-知道了 `fd` 从哪里来, 回到 select 模块的源码, 在第 [L1600][L1600] 行,
+知道了 `fd` 从哪里来, 回到 select 模块的源码, 在第 [L1600][L1600] 行.
 ```c
 if (!PyArg_ParseTuple(args, "Oi|O:control", &ch, &nevents, &otimeout))
         return NULL;
@@ -250,6 +250,10 @@ struct kevent {
 ## Notes
 
 1. C 语言中, 结构体和函数可以同名, 所以 `struct kevent` 和 `kevent(...)` 调用是两个不同的事情, 这两个 `kevent` 不同!!!
+
+## 总结
+
+control 就是 C 库函数 `kevent` 的变体, 注意这里的 `kevent` 不是结构体, 而是函数, 在 Notes 中说明了这点, 之前我没有理解这一点, 我一直以为 `kevent` 结构体和 `kevent` 函数是同一个, 所以导致了很多困惑. 在 Python 中 `select.kevent` 指向了 `kevent` 结构体, Python 语言的开发者应该是想让 C 中的 `kevent` 这个函数能更好的说明是来控制 `kqueue` 内核事件队列的, 所以把这个函数放在了 `kqueue` 下面, 并命名为 `control`, 所以官方文档说这是 `kevent` 的底层接口, 这个 `kevent` 指的就是 C 中的 `kevent` 函数, 而非结构体. 如果你之前懂得 C 中的 `kevent`, `kqueue`, 你应该能理解, 但是对于没有 C 经验的我, 读源码的过程也是收获很多:).
 
 ## 导航
 
