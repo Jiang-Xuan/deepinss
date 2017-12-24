@@ -1,5 +1,6 @@
 ---
 title: '透过 C 源码🔧深入理解 python 的 select.kqueue.control 方法'
+tags: ['SSS']
 ---
 
 # 透过 C 源码🔧深入理解 python 的 kqueue.control 方法
@@ -100,9 +101,9 @@ if (nevents < 0) {
 }
 ```
 
-检查 `nevents` 是否合法
+检查 `nevents` 是否合法.
 
-接下来的 `if else if else` 结构也是在检查 `nevents` 参数是否合法
+接下来的 `if else if else` 结构也是在检查 `nevents` 参数是否合法.
 
 接下来的代码.
 ```c
