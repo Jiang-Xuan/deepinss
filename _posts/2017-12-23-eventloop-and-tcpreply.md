@@ -398,7 +398,26 @@ def run(self):
 
 `events` 是发生的事件的数组, `while` 循环, 只要 `_stopping` 标志位为 `False`, 就继续循环.
 
-`asap` 是 as soon as possible 的缩写, 标志着是否应该尽快处理有问题的 `socket`, 因为获取事件的时候有可能出错
+`asap` 是 as soon as possible 的缩写, 标志着是否应该尽快处理有问题的 `socket`, 因为获取事件的时候有可能出错.
+
+调用 `eventloop.poll` 并且传入时间精度来控制获取事件的最大超时时间, 一旦有数据流入或者是流出或者是其他的事件发生, 在这里就能拿到发生事件的数据 (sock, fd, event).
+
+接下来处理每一个事件, 从 `_fdmap` 里面拿出来关于该文件描述符的数据(f, handler), 然后取出 `handler`, 然后将数据传递给处理器处理.
+
+获取当前的时间戳, 如果获取事件的时候出错或者是现在距离上次调用周期性的函数超过了时间精度, 则调用周期性的函数然后更新调用的时间戳.
+
+#### close
+
+```python
+def __del__(self):
+    self._impl.close()
+```
+
+销毁函数, 在销毁该对象的时候调用该方法.
+
+#### 来点图形吧
+
+都是在介绍代码🤔, 好像违背了我刚开始说的图形化😣, 所以现在来画一张图形吧, 
 
 [L2540]: <https://github.com/python/cpython/blob/master/Modules/selectmodule.c#L2540>
 [freebsb-kqueue]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2&apropos=0&manpath=FreeBSD+11.1-RELEASE+and+Ports>
