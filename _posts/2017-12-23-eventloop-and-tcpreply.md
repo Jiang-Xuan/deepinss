@@ -417,7 +417,43 @@ def __del__(self):
 
 #### 来点图形吧
 
-都是在介绍代码🤔, 好像违背了我刚开始说的图形化😣, 所以现在来画一张图形吧, 
+都是在介绍代码🤔, 好像违背了我刚开始说的图形化😣, 所以现在来画一张图形吧, 来看看 `run` 之后的获取事件的这一个流程, 关于 `TCPReply` 的会在接下来的文章中继续深入(deep)
+
+```shell
+           |-not _stopping ----------|
+run -------|                         |
+       / \ |-_stopping 直接返回       |
+        |                            |-> events = EventLoop.poll(TIMEOUT_PRECISION)-----|
+        |                                      |  / \                                   |
+        |开始下一轮循环                          |   |                                    | 
+        |                                      |   | [(socket, fd, event)]              |
+        |                                     \ /  |                                    |
+        |                    |------->results = KqueueLoop.poll(timeout)                | events
+        |                    |   然后循环results, 将|filter 标志位 对应为内部 POLL_IN 等变量. |
+  →-----↑                    |   接下来是数据的第一步|处理, 从 `_fdmap` 拿出来 socket,        |
+  ↑                          |            返回给 Ev|entLoop.poll调用                      |
+  |                          |-----------------|  |                                     |
+  |                             [(fd, e)]      |  |                                     |
+  |                                            | \ /                                    |
+  |                         _kqueue.control 拿出来内核事件队列里发生的事件, 然后返回           |
+  |                                                                                     |
+  |                               \ | /------------------------------------------------<|
+  |                                \|/                events
+  |                                 |
+  |                                 |
+  |                                \ /
+  | 在这里处理每一个发生的事件, 拿出来每一个事件对应的处理器 <-----> 走向处理器处理流程, 处理完成, 流程返回, ¬
+  | 后面介绍这一段流程
+  |                                 |
+  |                                 |
+  |                                \ /
+  | 事件处理完毕, 如果事件出现错误, 或者是距离上次调用周期性函数超过时间精度, 就调用所有的周期函数
+  |                                 |
+  |                                 |
+  |         走向下一个循环            ↓
+  ↑←--------------------------------←
+
+```
 
 [L2540]: <https://github.com/python/cpython/blob/master/Modules/selectmodule.c#L2540>
 [freebsb-kqueue]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2&apropos=0&manpath=FreeBSD+11.1-RELEASE+and+Ports>
