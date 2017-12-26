@@ -1,14 +1,18 @@
 ---
-title: eventloop ♺ 和TCPReply ⚒
+title: eventloop ♺
 ---
+Introduce to eventloop
+======================
 
 在请求 google.com 的时候总是不断的建立 TCP 连接, TCP 连接会创建 socket 进行通讯, 和浏览器的请求通讯需要和 socket 通讯, 接受浏览器的请求需要创建 socket, 和 SS server 通讯需要创建 socket, 所以监听 socket 的事件将是通讯的基础
 
-## TL;DR
+TL;DR
+-----
 
 <!-- TODO: 添加 TL;DR -->
 
-## 导入模块
+导入模块
+------
 
 ```python
 from __future__ import absolute_import, division, print_function, \
@@ -26,7 +30,8 @@ from collections import defaultdict
 from shadowsocks import shell
 ```
 
-## \_\_all\_\_ 导出
+\_\_all\_\_ 导出
+---------------
 
 ```python
 __all__ = ['EventLoop', 'POLL_NULL', 'POLL_IN', 'POLL_OUT', 'POLL_ERR',
@@ -35,7 +40,8 @@ __all__ = ['EventLoop', 'POLL_NULL', 'POLL_IN', 'POLL_OUT', 'POLL_ERR',
 
 \_\_all\_\_ 声明该模块暴露出去的接口
 
-## 模块常量
+模块常量
+-------
 
 ```python
 POLL_NULL = 0x00
@@ -80,7 +86,9 @@ TIMEOUT_PRECISION = 10000
 
 超时的时间精度, 我们将在 TIMEOUT_PRECISION 秒之后检查是否有请求超时, 如果有超时则销毁该请求, 释放关于该请求的系统资源, 否则有可能造成内存溢出. 在调试的时候将该值调大, 可以将请求的生命周期增长, 方便调试.
 
-## 事件轮询机制
+事件轮询机制
+----------
+
 ```python
 class KqueueLoop(object):
     ...
@@ -91,10 +99,10 @@ class KqueueLoop(object):
 这里有两种 loop 的实现, 在我的PC上面只会用到 `KqueueLoop`, 先行只解释 `KqueueLoop` 的实现.
 
 > NAME
->      kqueue, kevent -- kernel event notification mechanism
+>       kqueue, kevent -- kernel event notification mechanism
 >
 > LIBRARY
->      Standard C	Library	(libc, -lc)
+>       Standard C    Library    (libc, -lc)
 >
 > 引至: [freebsd-kqueue][freebsb-kqueue]
 
@@ -303,8 +311,8 @@ def add(self, f, mode, handler):
 参数:
 
 1. f 要监听的 socket 文件
-2. 要监听的模式 (POLL\_IN, POLL\_OUT) 数据流方向
-3. 该 `socket` 的处理器
+1. 要监听的模式 (POLL\_IN, POLL\_OUT) 数据流方向
+1. 该 `socket` 的处理器
 
 存储下来 fd -> (f, handler), 调用 `_impl` 注册该文件描述符.
 
@@ -454,6 +462,8 @@ run -------|                         |
   ↑←--------------------------------←
 
 ```
+
+接下来深究 **TCPReply** 吧
 
 [L2540]: <https://github.com/python/cpython/blob/master/Modules/selectmodule.c#L2540>
 [freebsb-kqueue]: <https://www.freebsd.org/cgi/man.cgi?query=kqueue&sektion=2&apropos=0&manpath=FreeBSD+11.1-RELEASE+and+Ports>
