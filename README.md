@@ -56,4 +56,4 @@ git clone https://github.com/shadowsocks/shadowsocks.git
 
 ### 项目维护者
 
-1. [Jiang Xuan](https://github.com/Jiang-Xuan)
+* [Jiang Xuan](https://github.com/Jiang-Xuan)
