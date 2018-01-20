@@ -19,3 +19,14 @@ li code {
 pre {
     white-space: pre-wrap;
 }
+
+figure.highlight {
+    margin: 0;
+    padding: 0;
+}
+
+/* 程序流控制面板容器 */
+.program-flow-control-panel-container {
+    padding: 2px 20px;
+    background-color: #292b29;
+}
