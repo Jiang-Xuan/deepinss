@@ -55,3 +55,115 @@ consoel.log('Hello, World')
 					    <div class="event-loop-commentary-item"></div>
 					</div>
 		</div>
+<div className="program-flow-walkthrough" data-panel-title="程序流控制面板" id="test">
+			<div className="program-flow-walkthrough-codesource">
+				<div className="line-highlight"></div>
+				<div className="codehilite">
+					{% highlight CODETYPE: `python`,python %}
+CODECONTENT:
+  `
+class Cryptor(object):
+  def __init__(self, password, method, crypto_path=None):
+      """
+      Crypto wrapper
+      :param password: str cipher password
+      :param method: str cipher
+      :param crypto_path: dict or none
+          {'openssl': path, 'sodium': path, 'mbedtls': path}
+      """
+      self.password = password
+      self.key = None
+      self.method = method
+      self.iv_sent = False
+      self.cipher_iv = b''
+      self.decipher = None
+      self.decipher_iv = None
+      self.crypto_path = crypto_path
+      method = method.lower()
+      self._method_info = Cryptor.get_method_info(method)
+      if self._method_info:
+          self.cipher = self.get_cipher(
+              password, method, CIPHER_ENC_ENCRYPTION,
+              random_string(self._method_info[METHOD_INFO_IV_LEN])
+          )
+      else:
+          logging.error('method %s not supported' % method)
+          sys.exit(1)
+  `,
+class Cryptor(object):
+  def __init__(self, password, method, crypto_path=None):
+      """
+      Crypto wrapper
+      :param password: str cipher password
+      :param method: str cipher
+      :param crypto_path: dict or none
+          {'openssl': path, 'sodium': path, 'mbedtls': path}
+      """
+      self.password = password
+      self.key = None
+      self.method = method
+      self.iv_sent = False
+      self.cipher_iv = b''
+      self.decipher = None
+      self.decipher_iv = None
+      self.crypto_path = crypto_path
+      method = method.lower()
+      self._method_info = Cryptor.get_method_info(method)
+      if self._method_info:
+          self.cipher = self.get_cipher(
+              password, method, CIPHER_ENC_ENCRYPTION,
+              random_string(self._method_info[METHOD_INFO_IV_LEN])
+          )
+      else:
+          logging.error('method %s not supported' % method)
+          sys.exit(1)
+  
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="task-queue">
+								<th>Task</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run script</div>,<div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+<tr class="microtask-queue">
+								<th>Microtasks</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run script</div>,<div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+<tr class="js-stack">
+								<th>JS Stack</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run script</div>,<div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+<tr class="event-loop-log">
+								<th>Log</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run, script</div>,<div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>

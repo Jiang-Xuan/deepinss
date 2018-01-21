@@ -111,7 +111,7 @@ ${codeContent}
 	return string
 }
 
-if (process.mainModule) {
+if (require.main === module) {
 	const test = template('const a = 6\nlet b = 7\nconsoel.log(\'Hello, World\')', 'javascript')
 
 	console.log(test)
