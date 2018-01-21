@@ -41,6 +41,10 @@ const defaultConfig = {
 }
 
 function template(codeContent, codeType, config = defaultConfig) {
+	if (!(config === defaultConfig)) {
+		config = Object.assign({}, defaultConfig, config)
+	}
+
 	const {
 		id,
 		title,
@@ -50,10 +54,10 @@ function template(codeContent, codeType, config = defaultConfig) {
 	} = config
 
 	const string = `
-		<div className="program-flow-walkthrough" data-panel-title="${title}" id="${id}">
-			<div className="program-flow-walkthrough-codesource">
-				<div className="line-highlight"></div>
-				<div className="codehilite">
+		<div class="program-flow-walkthrough" data-panel-title="${title}" id="${id}">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
 					{% highlight ${codeType} %}
 ${codeContent}
 					{% endhighlight %}
@@ -78,7 +82,7 @@ ${codeContent}
 											return `
 												<div class="event-loop-item">${textContent}</div>
 											`.trim()
-										})}
+										}).join('')}
 									</div>
 								</div></td>
 							</tr>
@@ -108,7 +112,7 @@ ${codeContent}
 		</div>
 	`.trim()
 
-	return string
+	return `\n<!-- Generate by template.js -->\n${string}\n<!-- Generate by template.js END -->\n`
 }
 
 if (require.main === module) {
