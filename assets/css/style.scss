@@ -3,6 +3,16 @@
 
 @import "{{ site.theme }}";
 
+/* 自定义字体 */
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://themes.googleusercontent.com/static/fonts/inconsolata/v6/BjAYBlHtW3CJxDcjzrnZCCwlidHJgAgmTjOEEzwu1L8.ttf) format("truetype");
+  font-display: optional;
+}
+
+
 .container {
     max-width: 1000px;
 }
@@ -26,8 +36,6 @@ figure.highlight {
     margin: 0;
     padding: 0;
     height: 100%;
-
-    overflow: hidden;
 }
 
 /* 程序流控制面板容器 */
@@ -49,8 +57,49 @@ figure.highlight {
 
     /* codesource */
     .program-flow-walkthrough-codesource {
+        position: relative;
         display: block;
         height: 300px;
+        margin-top: 20px;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.9);
+        
+        .codehilite {
+            position: relative;
+            top: 60px;
+            transform: translateY(40px);
+        }
+
+        .line-highlight {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            color: transparent;
+            background-color: rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            z-index: 9;
+            
+            &::before {
+                content: '.Hello';
+            }
+        }
+    }
+
+    .program-flow-walkthrough-codesource pre {
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border: none;
+    }
+    /* 保持 line-highlight bar 的高度和代码行的高度一致 */
+    .program-flow-walkthrough-codesource .line-highlight,
+    .program-flow-walkthrough-codesource .line-highlight::before,
+    .program-flow-walkthrough-codesource pre,
+    .program-flow-walkthrough-codesource pre > code {
+        font-family: Inconsolata, courier, monospace;
+        font-size: 17px;
+        line-height: 1.4;
     }
     /* codesource END */
 
@@ -97,6 +146,7 @@ figure.highlight {
         background-color: #ddd;
         color: black;
         border-radius: 2px;
+        opacity: 0;
     }
     /* items item 样式 END */
 
@@ -117,7 +167,27 @@ figure.highlight {
         .prev-btn,
         .next-btn {
             fill: transparent;
+            cursor: pointer;
         }
     }
     /* 控制样式 END */
+
+    .event-loop-commentary {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+    .event-loop-commentary-item {
+        padding: 12px 18px;
+        font-size: 1.7rem;
+        background-color: rgba(0, 0, 0, .77);
+        border-radius: 7px;
+        opacity: 0;
+    }
 }
