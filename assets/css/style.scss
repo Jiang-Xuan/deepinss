@@ -3,6 +3,16 @@
 
 @import "{{ site.theme }}";
 
+/* 自定义字体 */
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://themes.googleusercontent.com/static/fonts/inconsolata/v6/BjAYBlHtW3CJxDcjzrnZCCwlidHJgAgmTjOEEzwu1L8.ttf) format("truetype");
+  font-display: optional;
+}
+
+
 .container {
     max-width: 1000px;
 }
@@ -17,5 +27,167 @@ li code {
 }
 
 pre {
+    box-sizing: border-box;
     white-space: pre-wrap;
+    height: 100%;
+}
+
+figure.highlight {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+/* 程序流控制面板容器 */
+.program-flow-walkthrough {
+    position: relative;
+    padding: 2px 20px;
+    background-color: #292b29;
+
+    &::before {
+        content: attr(data-panel-title);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 20px;
+        font-size: 80%;
+        text-align: center;
+    }
+
+    /* codesource */
+    .program-flow-walkthrough-codesource {
+        position: relative;
+        display: block;
+        height: 300px;
+        margin-top: 20px;
+        overflow: hidden;
+        background-color: rgba(0, 0, 0, 0.9);
+        
+        .codehilite {
+            position: relative;
+            top: 60px;
+            transform: translateY(40px);
+        }
+
+        .line-highlight {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            color: transparent;
+            background-color: rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            z-index: 9;
+            
+            &::before {
+                content: '.Hello';
+            }
+        }
+    }
+
+    .program-flow-walkthrough-codesource pre {
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border: none;
+    }
+    /* 保持 line-highlight bar 的高度和代码行的高度一致 */
+    .program-flow-walkthrough-codesource .line-highlight,
+    .program-flow-walkthrough-codesource .line-highlight::before,
+    .program-flow-walkthrough-codesource pre,
+    .program-flow-walkthrough-codesource pre > code {
+        font-family: Inconsolata, courier, monospace;
+        font-size: 17px;
+        line-height: 1.4;
+    }
+    /* codesource END */
+
+    table {
+        width: 100%;
+        margin: 0;
+        table-layout: fixed;
+        border-collapse: collapse;
+
+        tr {
+            height: 30px;
+        }
+
+        tr:nth-child(1) {
+            border-left: 2px solid #ae63e4;
+        }
+
+        tr:nth-child(2) {
+            border-left: 2px solid #47cf73;
+        }
+
+        tr:nth-child(3) {
+            border-left: 2px solid #ffdd40;
+        }
+
+        tr:nth-child(4) {
+            border-left: 2px solid #0ebeff;
+        }
+    }
+
+    th {
+        border-bottom: none;
+        width: 5.1rem;
+    }
+
+    /* items item 样式 */
+    .event-loop-items,
+    .event-loop-rail {
+        display: flex;
+    }
+    .event-loop-item {
+        padding: 5px;
+        margin: 5px;
+        background-color: #ddd;
+        color: black;
+        border-radius: 2px;
+        opacity: 0;
+    }
+    /* items item 样式 END */
+
+    /* 控制样式 */
+    .event-loop-controls {
+        display: flex;
+        justify-content: center;
+        height: 1.7rem;
+        padding: 0.6rem;
+        fill: #6d6d6d;
+        background-color: transparent;
+
+        svg {
+            display: block;
+            height: 100%;
+        }
+
+        .prev-btn,
+        .next-btn {
+            fill: transparent;
+            cursor: pointer;
+        }
+    }
+    /* 控制样式 END */
+
+    .event-loop-commentary {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+    .event-loop-commentary-item {
+        padding: 12px 18px;
+        font-size: 1.7rem;
+        background-color: rgba(0, 0, 0, .77);
+        border-radius: 7px;
+        opacity: 0;
+    }
 }
