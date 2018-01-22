@@ -2,13 +2,15 @@
 title: '启动🚀 local.py'
 ---
 
-### Debugger
+Debugger
+--------
 
 我一直坚信学习代码之前应该先学习 debugger.
 
 选用 VSCode 来调试 python 代码非常的方便, 只要安装 python 的 debugger 插件就好.
 
-### 解读 local.py
+解读 local.py
+-------------
 
 local.py 的开始指定了文件的运行环境 `/usr/bin/env python`, 第二行指定了文件的编码格式为utf8 `-*- coding: utf-8 -*-`
 
@@ -34,12 +36,14 @@ from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, asyncdns
 ```
 从 shadowsocks 模块引入需要的
 
-### 页内目录
+页内目录
+-------
 
 * [shell.check_python](#shellcheck_python)
 * [shell.get_config](#shellget_config)
 
-### Code
+Code
+-----
 
 ```python
 @shell.exception_handle(self_=False, exit_code=1) # shell 模块中捕获错误的工具
@@ -96,7 +100,8 @@ if __name__ == '__main__':
 
 ```
 
-## shell.check_python
+shell.check_python
+------------------
 
 ```python
 def check_python():
@@ -119,7 +124,7 @@ def check_python():
                                      |--------- < 2.5.x 不支持, 退出
               |--------> 2.x.x ------|
               |                      |--------- <= 2.6.x && <= 2.9.x 支持
-              |                      
+              |                      |
               |                      |--------- < 3.3.x 不支持, 退出
 x.x.x --------|--------> 3.x.x ------|
               |                      |--------- > 3.3.x 支持
@@ -127,7 +132,8 @@ x.x.x --------|--------> 3.x.x ------|
               |--------> x.x.x 不支持
 ```
 
-## shell.get_config
+shell.get_config
+----------------
 
 ```python
 
@@ -292,7 +298,8 @@ def get_config(is_local):
 * logging.basicConfig: <https://docs.python.org/2.7/library/logging.html#logging.basicConfig>
 * getopt: <https://docs.python.org/2.7/library/getopt.html>
 
-## shell.find_config
+shell.find_config
+-----------------
 
 ```python
 def find_config():
@@ -308,26 +315,32 @@ def find_config():
 * os.path.exists: <https://docs.python.org/2.7/library/os.path.html#os.path.exists>
 * os.path.join: <https://docs.python.org/2.7/library/os.path.html#os.path.join>
 
-## daemon.daemon_exec
+daemon.daemon_exec
+------------------
 
 这里主要是用来守护 SS 的程序, 但是不影响主流程, 现在不做解释
 
-## dns_resolver = asyncdns.DNSResolver()
+dns_resolver = asyncdns.DNSResolver()
+-------------------------------------
 
 这一行代码是为了创建 关于 DNS 的处理, 在 local 端我们一般填写的服务器的地址是 IP 地址, 所以我们暂时也不做解释
 
-## tcp_server = tcprelay.TCPRelay(config, dns_resolver, True)
+tcp_server = tcprelay.TCPRelay(config, dns_resolver, True)
+----------------------------------------------------------
 
 这一行代码是最重要的, 用来创建 TCP 服务, 这一点将是我们接下来讲解的重点
 
-## udp_server = udprelay.UDPRelay(config, dns_resolver, True)
+udp_server = udprelay.UDPRelay(config, dns_resolver, True)
+----------------------------------------------------------
 
 这一行是 udp 服务的核心, 但是我们最常用的不是这个, 先行不解释, 我们把整个 local 端的基础服务先解释一遍
 
-## loop = eventloop.EventLoop()
+loop = eventloop.EventLoop()
+----------------------------
 
 这一行是创建事件轮询器, 它处理者来自系统的各种事件. 我们接下来也会重点的解释着个模块, 这个模块加上 tcprelay 模块, 构成了我们使用频率最高的服务
 
-### 接下来
+接下来
+-----
 
 接下来将会详细的解释 eventloop, tcpreply, 有了这两个我们基本可以走通整个 local 的流程

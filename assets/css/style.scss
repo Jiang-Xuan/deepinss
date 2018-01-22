@@ -43,6 +43,7 @@ figure.highlight {
     position: relative;
     padding: 2px 20px;
     background-color: #292b29;
+    display: none;
 
     &::before {
         content: attr(data-panel-title);
