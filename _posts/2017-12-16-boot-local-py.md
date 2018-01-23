@@ -42,7 +42,7 @@ from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, asyncdns
 * [shell.check_python](#shellcheck_python)
 * [shell.get_config](#shellget_config)
 
-Code
+main 函数
 -----
 
 ```python
@@ -100,6 +100,78 @@ if __name__ == '__main__':
 
 ```
 
+来用动画看一下该函数的执行流程:
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="程序流控制面板" id="main">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+@shell.exception_handle(self_=False, exit_code=1)
+def main():
+    shell.check_python()
+
+    if hasattr(sys, "frozen") and sys.frozen in \
+            ("windows_exe", "console_exe"):
+        p = os.path.dirname(os.path.abspath(sys.executable))
+        os.chdir(p)
+    config = shell.get_config(True)
+    daemon.daemon_exec(config)
+    logging.info("starting local at %s:%d" %
+                 (config['local_address'], config['local_port']))
+    dns_resolver = asyncdns.DNSResolver()
+    tcp_server = tcprelay.TCPRelay(config, dns_resolver, True)
+    udp_server = udprelay.UDPRelay(config, dns_resolver, True)
+    loop = eventloop.EventLoop()
+    dns_resolver.add_to_loop(loop)
+    tcp_server.add_to_loop(loop)
+    udp_server.add_to_loop(loop)
+
+    def handler(signum, _):
+        logging.warn('received SIGQUIT, doing graceful shutting down..')
+        tcp_server.close(next_tick=True)
+        udp_server.close(next_tick=True)
+    signal.signal(getattr(signal, 'SIGQUIT', signal.SIGTERM), handler)
+
+    def int_handler(signum, _):
+        sys.exit(1)
+    signal.signal(signal.SIGINT, int_handler)
+
+    daemon.set_user(config.get('user', None))
+    loop.run()
+
+if __name__ == '__main__':
+    main()
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="task-queue">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run script</div><div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
 shell.check_python
 ------------------
 
@@ -120,17 +192,53 @@ def check_python():
 * sys.version_info: <https://docs.python.org/2.7/library/sys.html#sys.version_info>
 * sys.exit: <https://docs.python.org/2.7/library/sys.html#sys.exit>
 
-```shell
-                                     |--------- < 2.5.x 不支持, 退出
-              |--------> 2.x.x ------|
-              |                      |--------- <= 2.6.x && <= 2.9.x 支持
-              |                      |
-              |                      |--------- < 3.3.x 不支持, 退出
-x.x.x --------|--------> 3.x.x ------|
-              |                      |--------- > 3.3.x 支持
-              |
-              |--------> x.x.x 不支持
-```
+来用动画看一下该函数的执行流程:
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="程序流控制面板" id="check-python">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def check_python():
+    info = sys.version_info
+    if info[0] == 2 and not info[1] >= 6: # 如果处于 2.x 版本, 但是
+        print('Python 2.6+ required')
+        sys.exit(1) # 退出
+    elif info[0] == 3 and not info[1] >= 3:
+        print('Python 3.3+ required')
+        sys.exit(1)
+    elif info[0] not in [2, 3]:
+        print('Python version not supported')
+        sys.exit(1)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="task-queue">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										<div class="event-loop-item">Run script</div><div class="event-loop-item">setTimeout callback</div>
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
 
 shell.get_config
 ----------------
@@ -344,3 +452,23 @@ loop = eventloop.EventLoop()
 -----
 
 接下来将会详细的解释 eventloop, tcpreply, 有了这两个我们基本可以走通整个 local 的流程
+
+{% include eventloopanimation.html %}
+
+<script>
+/* Transformed by babel-transform.js */
+'use strict';
+
+;(function () {
+  var main = document.getElementById('main');
+  var mainELA = new EventLoopAnimation(main);
+
+  mainELA.state().moveToLine(1).showCodeBar().commentary('装饰器装饰通用的错误处理函数').state().hideCommentary().moveToLine(2).commentary('执行 main 函数').state().hideCommentary().pushTask();
+})();(function () {
+  var checkPython = document.getElementById('check-python');
+  var checkPythonELA = new EventLoopAnimation(checkPython);
+
+  checkPythonELA.state().moveToLine(1).showCodeBar().commentary('开始执行 check_python').state().hideCommentary().moveToLine(2).commentary('获取 python 的版本').state().hideCommentary().moveToLine(3).commentary('如果在 2.5 及以下, 不支持').state().hideCommentary().moveToLine(4).commentary('打印需要 Python 2.6+ required').state().hideCommentary().moveToLine(5).commentary('sys.exit(1) 以状态码 1 退出进程').state().hideCommentary().moveToLine(6).commentary('如果是 3.3 及以下, 不支持').state().hideCommentary().moveToLine(7).commentary('打印需要 Python 3.3+ required').state().hideCommentary().moveToLine(8).commentary('sys.exit(1) 以状态码 1 退出进程').state().hideCommentary().moveToLine(9).commentary('如果既不是 2.x 版本, 也不是 3.x 版本').state().hideCommentary().moveToLine(10).commentary('打印 Python version not supported').state().hideCommentary().moveToLine(11).commentary('sys.exit(1) 以状态码 1 退出进程');
+})();
+/* Transformed by babel-transform.js END */
+</script>

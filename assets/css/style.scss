@@ -43,7 +43,6 @@ figure.highlight {
     position: relative;
     padding: 2px 20px;
     background-color: #292b29;
-    display: none;
 
     &::before {
         content: attr(data-panel-title);
@@ -133,7 +132,7 @@ figure.highlight {
 
     th {
         border-bottom: none;
-        width: 5.1rem;
+        width: 7.1rem;
     }
 
     /* items item 样式 */
