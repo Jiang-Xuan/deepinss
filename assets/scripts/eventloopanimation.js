@@ -58,6 +58,9 @@
     this._codePane = this._el.querySelector('.codehilite')
     this._commentary = this._el.querySelector('.event-loop-commentary-item')
 
+    /* jump-func-list */
+    this._jumpFuncList = this._el.querySelector('.jump-func-list .event-loop-items')
+
     const onClick = (event) => {
       const className = event.target.getAttribute('class')
       if (className === 'prev-btn') {
@@ -169,6 +172,42 @@
           opacity: 1
         }, .2 * animate, 'ease-in-out')
     }.bind(this))
+  }
+
+  /**
+   * 创建 jump-func-list item
+   * @param { String } text 包含的文字
+   * @param { URL } link 文字的跳转地址
+   */
+  EventLoopAnimation.prototype.pushJumpFuncList = function(text, link) {
+    return this.action((animate) => {
+      const div = document.createElement('div')
+      let scrollHeight
+      div.className = 'event-loop-item'
+      if (link) {
+        const a = document.createElement('a')
+        a.href = link
+        if (link[0] !== '#') {
+          a.setAttribute('target', '_blank')
+          a.textContent = text
+        } else {
+          a.textContent = `${text}(本页内)`
+        }
+        div.appendChild(a)
+      } else {
+        div.textContent = text
+      }
+      div.style.backgroundColor = '#5b5341'
+      this._jumpFuncList.appendChild(div)
+
+      if (scrollHeight = this._jumpFuncList.scrollHeight) {
+        this._jumpFuncList.scrollTop = scrollHeight
+      }
+
+      return transition(div, {
+        opacity: 1
+      }, .2 * animate, 'ease-in-out')
+    })
   }
 
   /**

@@ -4,13 +4,9 @@ const defaultConfig = {
 	id: 'test',
 	title: '程序流控制面板',
 	trs: [{
-    className: 'task-queue',
+    className: 'jump-func-list',
     th: '跳转函数列表',
-    initialEventLoopItems: [{
-      textContent: 'Run script'
-    }, {
-      textContent: 'setTimeout callback'
-    }]
+    initialEventLoopItems: []
 	}/*, {
     className: 'microtask-queue',
     th: 'Microtasks',

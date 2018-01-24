@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
 
 <!-- Generate by template.js -->
-<div class="program-flow-walkthrough" data-panel-title="程序流控制面板" id="main">
+<div class="program-flow-walkthrough" data-panel-title="main 函数执行流" id="main">
 			<div class="program-flow-walkthrough-codesource">
 				<div class="line-highlight"></div>
 				<div class="codehilite">
@@ -148,11 +148,11 @@ if __name__ == '__main__':
 				</div>
 			</div>
 			<table>
-				<tr class="task-queue">
+				<tr class="jump-func-list">
 								<th>跳转函数列表</th>
 								<td><div class="event-loop-items">
 									<div class="event-loop-rail">
-										<div class="event-loop-item">Run script</div><div class="event-loop-item">setTimeout callback</div>
+										
 									</div>
 								</div></td>
 							</tr>
@@ -196,7 +196,7 @@ def check_python():
 
 
 <!-- Generate by template.js -->
-<div class="program-flow-walkthrough" data-panel-title="程序流控制面板" id="check-python">
+<div class="program-flow-walkthrough" data-panel-title="check-python 函数执行流" id="check-python">
 			<div class="program-flow-walkthrough-codesource">
 				<div class="line-highlight"></div>
 				<div class="codehilite">
@@ -216,11 +216,11 @@ def check_python():
 				</div>
 			</div>
 			<table>
-				<tr class="task-queue">
+				<tr class="jump-func-list">
 								<th>跳转函数列表</th>
 								<td><div class="event-loop-items">
 									<div class="event-loop-rail">
-										<div class="event-loop-item">Run script</div><div class="event-loop-item">setTimeout callback</div>
+										
 									</div>
 								</div></td>
 							</tr>
@@ -463,7 +463,7 @@ loop = eventloop.EventLoop()
   var main = document.getElementById('main');
   var mainELA = new EventLoopAnimation(main);
 
-  mainELA.state().moveToLine(1).showCodeBar().commentary('装饰器装饰通用的错误处理函数').state().hideCommentary().moveToLine(2).commentary('执行 main 函数').state().hideCommentary().pushTask();
+  mainELA.state().moveToLine(1).showCodeBar().commentary('装饰器装饰通用的错误处理函数').pushJumpFuncList('shell.exception_handle(暂无链接)', '').state().hideCommentary().moveToLine(2).commentary('执行 main 函数').state().hideCommentary().moveToLine(3).commentary('检查python版本').pushJumpFuncList('shell.check_python', '#check-python').state().hideCommentary().moveToLine(5).commentary('为了处理 Windows 平台的问题, 跳过').state().hideCommentary().moveToLine(9).commentary('获取 config, 传入 true 表明自己是 local 端').pushJumpFuncList('shell.get_config(暂无链接)').state().hideCommentary().moveToLine(10).commentary('是否守护程序, 传入config').pushJumpFuncList('deamon.daemon_exec(暂无链接)').state().hideCommentary().moveToLine(13).commentary('创建 DNSResolver 实例来处理 DNS 相关请求').pushJumpFuncList('asyncdns.DNSResolver(暂无链接)').state().hideCommentary().moveToLine(14).commentary('创建 TCPRelay 实例监听 TCP 请求并处理 TCP 请求').pushJumpFuncList('tcprelay.TCPRelay(暂无链接)').state().hideCommentary().moveToLine(15).commentary('创建 UDPRelay 实例监听 UDP 请求并处理 UDP 请求').pushJumpFuncList('udprelay.UDPRelay(暂无链接)').state().hideCommentary().moveToLine(16).commentary('创建 EventLoop 实例来监听所有即将发生的事件').pushJumpFuncList('eventloop.EventLoop(暂无链接)').state().hideCommentary().moveToLine(17).commentary('dns_resolver 需要发起请求获取 DNS 数据, 将其加入事件轮训器中').pushJumpFuncList('dns_resolver.add_to_loop(暂无链接)').state().hideCommentary().moveToLine(18).commentary('tcp_server 监听本地请求向 ssserver 发起请求, 将其加入事件轮训器中').pushJumpFuncList('tcp_server.add_to_loop(暂无链接)').state().hideCommentary().moveToLine(19).commentary('udp_server 监听本地请求向 ssserver 发起请求, 将其加入事件轮训器中').pushJumpFuncList('udp_server.add_to_loop(暂无链接)').state().hideCommentary().moveToLine(21).commentary('SIGQUIT 的系统信号的监听器, 会优雅的退出 ss 进程').state().hideCommentary().moveToLine(27).commentary('SIGINT 系统信号的监听器, 直接强制退出 ss 进程').state().hideCommentary().moveToLine(31).commentary('设置以什么身份守护 ss 进程').pushJumpFuncList('daemon.set_user(暂无链接)').state().hideCommentary().moveToLine(32).commentary('启动事件轮询器, 这行代码执行完毕服务就启动起来了').pushJumpFuncList('loop.run(暂无链接)').state().hideCommentary().moveToLine(34).commentary('如果该文件为启动文件, 执行 main 函数').state().hideCommentary().moveToLine(35);
 })();(function () {
   var checkPython = document.getElementById('check-python');
   var checkPythonELA = new EventLoopAnimation(checkPython);

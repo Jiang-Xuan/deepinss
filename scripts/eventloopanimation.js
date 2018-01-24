@@ -23,6 +23,9 @@ let codeType
 const idReg = /ID:\n?\s*\`([\s\S]*?)\`/
 let id
 
+const titleReg = /TITLE:\n?\s*\`([\s\S]*?)\`/
+let title
+
 function exec() {
   posts.forEach(post => {
       const postPath = path.resolve(projectRootDirOri, `./${post}`)
@@ -45,12 +48,24 @@ function exec() {
 
           if (id = configContent.match(idReg)) {
           } else {
-            console.warning('id is unmatched, use default')
+            console.log('id is unmatched, use default')
           }
 
-          const generateByTemplate = template(codeContent[1].trim(), codeType[1].trim(), {
-            id: id[1].trim()
-          })
+          if (title = configContent.match(titleReg)) {
+          } else {
+            console.log('title is unmatched, use default')
+          }
+
+          let config = {}
+
+          if (id) {
+            config.id = id[1].trim()
+          }
+          if (title) {
+            config.title = title[1].trim()
+          }
+
+          const generateByTemplate = template(codeContent[1].trim(), codeType[1].trim(), config)
 
           const finelResult = content.replace(eventLoopAnimationReg, generateByTemplate).trim()
 
