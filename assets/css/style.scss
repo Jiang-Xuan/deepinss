@@ -12,6 +12,10 @@
   font-display: optional;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 
 .container {
     max-width: 1000px;
@@ -43,7 +47,6 @@ figure.highlight {
     position: relative;
     padding: 2px 20px;
     background-color: #292b29;
-    display: none;
 
     &::before {
         content: attr(data-panel-title);
@@ -64,7 +67,7 @@ figure.highlight {
         margin-top: 20px;
         overflow: hidden;
         background-color: rgba(0, 0, 0, 0.9);
-        
+
         .codehilite {
             position: relative;
             top: 60px;
@@ -80,7 +83,7 @@ figure.highlight {
             background-color: rgba(255, 255, 255, 0.2);
             opacity: 0;
             z-index: 9;
-            
+
             &::before {
                 content: '.Hello';
             }
@@ -110,8 +113,11 @@ figure.highlight {
         table-layout: fixed;
         border-collapse: collapse;
 
-        tr {
-            height: 30px;
+        /* 跳转列表 */
+        .jump-func-list {
+            th {
+                line-height: 60px;
+            }
         }
 
         tr:nth-child(1) {
@@ -133,13 +139,16 @@ figure.highlight {
 
     th {
         border-bottom: none;
-        width: 5.1rem;
+        width: 7.1rem;
     }
 
     /* items item 样式 */
     .event-loop-items,
     .event-loop-rail {
         display: flex;
+        flex-wrap: wrap;
+        max-height: 200px;
+        overflow: scroll;
     }
     .event-loop-item {
         padding: 5px;

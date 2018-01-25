@@ -70,3 +70,9 @@ git clone https://github.com/shadowsocks/shadowsocks.git
 --------
 
 * [Jiang Xuan](https://github.com/Jiang-Xuan)
+
+
+动画流程书写
+----------
+
+跳转行, 解释这一行代码的作用, 如果该代码调用其他函数, 出现调转函数栏, 

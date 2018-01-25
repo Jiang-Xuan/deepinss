@@ -42,7 +42,7 @@ from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, asyncdns
 * [shell.check_python](#shellcheck_python)
 * [shell.get_config](#shellget_config)
 
-Code
+main 函数
 -----
 
 ```python
@@ -100,6 +100,55 @@ if __name__ == '__main__':
 
 ```
 
+来用动画看一下该函数的执行流程:
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+@shell.exception_handle(self_=False, exit_code=1)
+def main():
+    shell.check_python()
+
+    if hasattr(sys, "frozen") and sys.frozen in \
+            ("windows_exe", "console_exe"):
+        p = os.path.dirname(os.path.abspath(sys.executable))
+        os.chdir(p)
+    config = shell.get_config(True)
+    daemon.daemon_exec(config)
+    logging.info("starting local at %s:%d" %
+                 (config['local_address'], config['local_port']))
+    dns_resolver = asyncdns.DNSResolver()
+    tcp_server = tcprelay.TCPRelay(config, dns_resolver, True)
+    udp_server = udprelay.UDPRelay(config, dns_resolver, True)
+    loop = eventloop.EventLoop()
+    dns_resolver.add_to_loop(loop)
+    tcp_server.add_to_loop(loop)
+    udp_server.add_to_loop(loop)
+
+    def handler(signum, _):
+        logging.warn('received SIGQUIT, doing graceful shutting down..')
+        tcp_server.close(next_tick=True)
+        udp_server.close(next_tick=True)
+    signal.signal(getattr(signal, 'SIGQUIT', signal.SIGTERM), handler)
+
+    def int_handler(signum, _):
+        sys.exit(1)
+    signal.signal(signal.SIGINT, int_handler)
+
+    daemon.set_user(config.get('user', None))
+    loop.run()
+
+if __name__ == '__main__':
+    main()
+  `
+
+CODETYPE: `python`
+
+ID: `main`
+
+TITLE: `main 函数执行流`
+-->
+
 shell.check_python
 ------------------
 
@@ -120,17 +169,29 @@ def check_python():
 * sys.version_info: <https://docs.python.org/2.7/library/sys.html#sys.version_info>
 * sys.exit: <https://docs.python.org/2.7/library/sys.html#sys.exit>
 
-```shell
-                                     |--------- < 2.5.x 不支持, 退出
-              |--------> 2.x.x ------|
-              |                      |--------- <= 2.6.x && <= 2.9.x 支持
-              |                      |
-              |                      |--------- < 3.3.x 不支持, 退出
-x.x.x --------|--------> 3.x.x ------|
-              |                      |--------- > 3.3.x 支持
-              |
-              |--------> x.x.x 不支持
-```
+来用动画看一下该函数的执行流程:
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+    `
+def check_python():
+    info = sys.version_info
+    if info[0] == 2 and not info[1] >= 6: # 如果处于 2.x 版本, 但是
+        print('Python 2.6+ required')
+        sys.exit(1) # 退出
+    elif info[0] == 3 and not info[1] >= 3:
+        print('Python 3.3+ required')
+        sys.exit(1)
+    elif info[0] not in [2, 3]:
+        print('Python version not supported')
+        sys.exit(1)
+    `
+CODETYPE: `python`
+
+ID: `check-python`
+
+TITLE: `check-python 函数执行流`
+-->
 
 shell.get_config
 ----------------
@@ -344,3 +405,51 @@ loop = eventloop.EventLoop()
 -----
 
 接下来将会详细的解释 eventloop, tcpreply, 有了这两个我们基本可以走通整个 local 的流程
+
+{% include eventloopanimation.html %}
+
+<script>
+;(() => {
+  const main = document.getElementById('main')
+  const mainELA = new EventLoopAnimation(main)
+
+  mainELA
+    .state().moveToLine(1).showCodeBar().commentary('装饰器装饰通用的错误处理函数').pushJumpFuncList('shell.exception_handle(暂无链接)', '')
+    .state().hideCommentary().moveToLine(2).commentary('执行 main 函数')
+    .state().hideCommentary().moveToLine(3).commentary('检查python版本').pushJumpFuncList('shell.check_python', '#check-python')
+    .state().hideCommentary().moveToLine(5).commentary('为了处理 Windows 平台的问题, 跳过')
+    .state().hideCommentary().moveToLine(9).commentary('获取 config, 传入 true 表明自己是 local 端').pushJumpFuncList('shell.get_config(暂无链接)')
+    .state().hideCommentary().moveToLine(10).commentary('是否守护程序, 传入config').pushJumpFuncList('deamon.daemon_exec(暂无链接)')
+    .state().hideCommentary().moveToLine(13).commentary('创建 DNSResolver 实例来处理 DNS 相关请求').pushJumpFuncList('asyncdns.DNSResolver(暂无链接)')
+    .state().hideCommentary().moveToLine(14).commentary('创建 TCPRelay 实例监听 TCP 请求并处理 TCP 请求').pushJumpFuncList('tcprelay.TCPRelay(暂无链接)')
+    .state().hideCommentary().moveToLine(15).commentary('创建 UDPRelay 实例监听 UDP 请求并处理 UDP 请求').pushJumpFuncList('udprelay.UDPRelay(暂无链接)')
+    .state().hideCommentary().moveToLine(16).commentary('创建 EventLoop 实例来监听所有即将发生的事件').pushJumpFuncList('eventloop.EventLoop(暂无链接)')
+    .state().hideCommentary().moveToLine(17).commentary('dns_resolver 需要发起请求获取 DNS 数据, 将其加入事件轮训器中').pushJumpFuncList('dns_resolver.add_to_loop(暂无链接)')
+    .state().hideCommentary().moveToLine(18).commentary('tcp_server 监听本地请求向 ssserver 发起请求, 将其加入事件轮训器中').pushJumpFuncList('tcp_server.add_to_loop(暂无链接)')
+    .state().hideCommentary().moveToLine(19).commentary('udp_server 监听本地请求向 ssserver 发起请求, 将其加入事件轮训器中').pushJumpFuncList('udp_server.add_to_loop(暂无链接)')
+    .state().hideCommentary().moveToLine(21).commentary('SIGQUIT 的系统信号的监听器, 会优雅的退出 ss 进程')
+    .state().hideCommentary().moveToLine(27).commentary('SIGINT 系统信号的监听器, 直接强制退出 ss 进程')
+    .state().hideCommentary().moveToLine(31).commentary('设置以什么身份守护 ss 进程').pushJumpFuncList('daemon.set_user(暂无链接)')
+    .state().hideCommentary().moveToLine(32).commentary('启动事件轮询器, 这行代码执行完毕服务就启动起来了').pushJumpFuncList('loop.run(暂无链接)')
+    .state().hideCommentary().moveToLine(34).commentary('如果该文件为启动文件, 执行 main 函数')
+    .state().hideCommentary().moveToLine(35)
+})()
+;(() => {
+  const checkPython = document.getElementById('check-python')
+  const checkPythonELA = new EventLoopAnimation(checkPython)
+
+  checkPythonELA
+    .state().moveToLine(1).showCodeBar().commentary('开始执行 check_python')
+    .state().hideCommentary().moveToLine(2).commentary('获取 python 的版本')
+    .state().hideCommentary().moveToLine(3).commentary('如果在 2.5 及以下, 不支持')
+    .state().hideCommentary().moveToLine(4).commentary('打印需要 Python 2.6+ required')
+    .state().hideCommentary().moveToLine(5).commentary('sys.exit(1) 以状态码 1 退出进程')
+    .state().hideCommentary().moveToLine(6).commentary('如果是 3.3 及以下, 不支持')
+    .state().hideCommentary().moveToLine(7).commentary('打印需要 Python 3.3+ required')
+    .state().hideCommentary().moveToLine(8).commentary('sys.exit(1) 以状态码 1 退出进程')
+    .state().hideCommentary().moveToLine(9).commentary('如果既不是 2.x 版本, 也不是 3.x 版本')
+    .state().hideCommentary().moveToLine(10).commentary('打印 Python version not supported')
+    .state().hideCommentary().moveToLine(11).commentary('sys.exit(1) 以状态码 1 退出进程')
+})()
+
+</script>
