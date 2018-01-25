@@ -21,6 +21,12 @@ Welcome to SSS
 
 我是 google 的忠实粉丝, 也经常使用 Wikipedia. 由于 SS 现在过于明显, 总有一天会有被检测出来的风险, 与其静待被封, 不如看下源码, 理解下原理, 也许有一天可以为下一代的科学上网奉献一份力量.
 
+2018.1.23 TODOS
+---------------
+
+* 程序流执行面板
+* 增加在线的 python 执行环境, 基于[pythonanywhere](www.pythonanywhere.com)
+
 起源
 ----
 
