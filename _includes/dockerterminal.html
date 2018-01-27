@@ -1,0 +1,84 @@
+<!-- Docker 的命令行工具 -->
+<script src="/deepinss/assets/scripts/xterm.js"></script>
+<script src="/deepinss/assets/scripts/addons/attach/attach.js"></script>
+<link rel="stylesheet" href="/deepinss/assets/css/xterm.css">
+
+<section id="terminal-container-fixed">
+  <input type="checkbox" id="terminal-container-checkbox">
+  <label for="terminal-container-checkbox"></label>
+  <div id="terminal-container-title">
+    在线命令行工具
+  </div>
+  <div id="terminal-container">
+    <!-- 命令行 -->
+  </div>
+</section>
+
+<style>
+  #terminal-container-fixed {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    height: 620px; /* 576 */
+    width: 769px;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  #terminal-container-fixed label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 30px;
+    width: 100%;
+    background-color: #33333380;
+    transform: translateY(590px);
+    z-index: 999;
+    opacity: 0;
+
+    transition: .5s ease-in-out;
+  }
+  #terminal-container-fixed #terminal-container {
+    height: 590px;
+    transform: translateY(590px);
+    transition: .5s ease-in-out;
+  }
+  #terminal-container-fixed #terminal-container-title {
+    text-align: center;
+    line-height: 30px;
+    transform: translateY(590px);
+    transition: .5s ease-in-out;
+    background-color: rgba(90, 55, 36, 0.5);
+    text-shadow: 2px 2px 1px black;
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~  #terminal-container {
+    background-color: black;
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~ label {
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~ #terminal-container-title {
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox {
+    display: none;
+  }
+</style>
+
+<script>
+;(() => {
+  var term = new Terminal()
+  var terminalContainer = document.getElementById('terminal-container')
+  var socket = new WebSocket('ws://47.100.102.192:8010/containers/bfc1d4f68d83/attach/ws?stream=true&stdin=true&stdout=true&stderr=true')
+  socket.onopen = () => {
+    term.attach(socket)
+    term.writeln('Welcome to deepinss 项目')
+    term.writeln('尝试连接中...')
+    term.writeln('连接成功! 你已经进入 centos 系统, 键入 python 来进入 python REPL 环境')
+    term.setOption('cursorBlink', true)
+    term.setOption('cursorStyle', 'underline')
+  }
+  term.open(terminalContainer)
+})();
+</script>
