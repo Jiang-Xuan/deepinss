@@ -147,7 +147,7 @@ if __name__ == '__main__':
 					{% endhighlight %}
 				</div>
 			</div>
-			<table class="program-flow-walkthrough-table">
+			<table>
 				<tr class="jump-func-list">
 								<th>跳转函数列表</th>
 								<td><div class="event-loop-items">
@@ -215,7 +215,7 @@ def check_python():
 					{% endhighlight %}
 				</div>
 			</div>
-			<table class="program-flow-walkthrough-table">
+			<table>
 				<tr class="jump-func-list">
 								<th>跳转函数列表</th>
 								<td><div class="event-loop-items">
