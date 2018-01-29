@@ -1,0 +1,53 @@
+<a href="#" id="scroll-to-top">
+  ↑ <span>Scroll to top</span>
+</a>
+<style>
+  #scroll-to-top {
+    font-size: 1rem;
+    color: #333;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    position: fixed;
+    bottom: 10%;
+    right: 0;
+    min-width: 20px;
+    text-align: center;
+    padding: 0 5px 1px;
+    opacity: 0;
+    -webkit-animation: buttonFade .5s 1s 1 forwards;
+    animation: buttonFade .5s 1s 1 forwards;
+  }
+
+  @-webkit-keyframes buttonFade {
+      0% {
+          opacity: 0
+      }
+
+      100% {
+          opacity: 1
+      }
+  }
+
+  @keyframes buttonFade {
+      0% {
+          opacity: 0
+      }
+
+      100% {
+          opacity: 1
+      }
+  }
+</style>
+<script type="text/javascript">
+;(function () {
+  var $scrollToTop = document.getElementById('scroll-to-top');
+  (window.onscroll = function() {
+    $scrollToTop.style.display = (window.pageYOffset > window.innerHeight) ? 'block' : 'none';
+  })();
+  $scrollToTop.onclick = function() {
+    window.scrollTo(0, 0);
+    return false;
+  };
+})();
+</script>
