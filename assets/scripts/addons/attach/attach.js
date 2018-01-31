@@ -58,18 +58,11 @@
     };
 
     term._getMessage = function (ev) {
-      /* test code */
-      var reader = new FileReader()
-      reader.addEventListener('loadend', () => {
-        var result = reader.result
-        if (buffered) {
-          term._pushToBuffer(result);
-        } else {
-          term.write(result);
-        }
-      })
-      reader.readAsText(ev.data)
-      /* test code END */
+      if (buffered) {
+        term._pushToBuffer(ev.data);
+      } else {
+        term.write(ev.data);
+      }
     };
 
     term._sendData = function (data) {
