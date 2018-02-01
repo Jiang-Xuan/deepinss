@@ -20,6 +20,15 @@ a {
     color: navajowhite;
 }
 
+a:not([href*='deepinss']):not([href^='#']) {
+    &::before {
+        content: '♂︎';
+        display: inline-block;
+        padding: 2px;
+        margin-right: 2px;
+    }
+}
+
 
 .container {
     max-width: 1000px;
