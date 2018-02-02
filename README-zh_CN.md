@@ -19,6 +19,8 @@ SSS
 
 解读 shadowsocks 源码
 
+[README in English](README.md)
+
 该项目发生了什么
 -------------
 
