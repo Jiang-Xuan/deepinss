@@ -38,6 +38,8 @@ Features
 * Cover each line of code.
 * Interactive interpretation code.
 
+![program-exec-flow-chart](./assets/images/program-exec-flow-chart.png)
+
 In development
 --------------
 
