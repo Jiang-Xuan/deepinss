@@ -154,9 +154,13 @@ def _control(self, fd, mode, flags):
 
 #### 交互式程序流
 
-<!-- EVENTLOOPANIMATION
-CODECONTENT:
-  `
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="程序流控制面板" id="_control-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
 def _control(self, fd, mode, flags):
     events = []
     if mode & POLL_IN:
@@ -165,21 +169,43 @@ def _control(self, fd, mode, flags):
         events.append(select.kevent(fd, select.KQ_FILTER_WRITE, flags))
     for e in events:
         self._kqueue.control([e], 0)
-  `
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
 
-CODETYPE: `python`
-
-ID: `_control-inter`
-
-TITLE: 'EventLoop _control 程序执行流'
-
--->
 
 {% include eventloopanimation.html %}
 
 <script>
-;(() => {
-  const _controlDOM = $('#_control-inter')
-  const _controlELA = $ela(_controlDOM)
+/* Transformed by babel-transform.js */
+'use strict';
+
+;(function () {
+  var _controlDOM = $('#_control-inter');
+  var _controlELA = $ela(_controlDOM);
 })();
+/* Transformed by babel-transform.js END */
 </script>
