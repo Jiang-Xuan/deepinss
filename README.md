@@ -12,8 +12,21 @@ Table of Contents
   {% endfor %}
 </ul>
 
-SSS [![first-timers-only](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
-=========================
+SSS
+=====
+[![first-timers-only](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
+
+Interpretation Shadowsocks source code
+
+[中文 README](README-zh_CN.md)
+
+What's happening on this project
+--------------------------------
+
+Not yet.
+
+Introduce
+---------
 
 This project begins on December 12, 2017. Committed to making everyone understand shadowsocks source code. The project was named SSS. Understand into shadowsocks study, or study shadowsocks can be.
 
