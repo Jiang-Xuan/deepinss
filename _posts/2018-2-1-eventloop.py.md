@@ -206,6 +206,8 @@ def _control(self, fd, mode, flags):
 ;(function () {
   var _controlDOM = $('#_control-inter');
   var _controlELA = $ela(_controlDOM);
+
+  _controlELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('该监听模式下需要监听的事件 list').state().hideCommentary().moveToLine(3).commentary('如果监听模式含有 POLL_IN').state().hideCommentary().moveToLine(4).commentary('创建一个 kevent, 传递参数 fd(文件描述符), select.KQ_FILTER_READ(读筛选器), flags(标志, 删除还是添加)').state().hideCommentary().moveToLine(5).commentary('如果监听模式含有 POLL_OUT').state().hideCommentary().moveToLine(6).commentary('创建一个 kevent, 传递参数 fd(文件描述符), select.KQ_FILTER_WRITE(写筛选器), flags(标志, 删除还是添加)').state().hideCommentary().moveToLine(7).commentary('循环需要监听的事件').state().hideCommentary().moveToLine(8).commentary('调用 self._kqueue.control 传入 [e](需要监听的事件), 0(取出来的最大事件, 这里只是开始该监听模式, 并不处理事件)');
 })();
 /* Transformed by babel-transform.js END */
 </script>
