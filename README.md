@@ -16,7 +16,7 @@ SSS
 =====
 [![first-timers-only](http://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
 
-Interpretation Shadowsocks source code
+Interpretation the source code of Shadowsocks.
 
 [中文 README](README-zh_CN.md)
 
@@ -52,6 +52,16 @@ Code of Conduct
 Get Shadowsocks source code
 ---------------------------
 
-[Shadowsocks master branch](https://github.com/shadowsocks/shadowsocks/tree/master)
+[The master branch of Shadowsocks](https://github.com/shadowsocks/shadowsocks/tree/master)
+
+Salute
+------
+
+* [github.io](https://github.io)
+
+Maintainers
+-----------
+
+* [Jiang Xuan](https://github.com/Jiang-Xuan)
 
 
