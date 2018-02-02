@@ -32,3 +32,26 @@ This project begins on December 12, 2017. Committed to making everyone understan
 
 This project is my goal to be completed by 2018.
 
+Features
+--------
+
+* Cover each line of code.
+* Interactive interpretation code.
+
+In development
+--------------
+
+* Online Centos environment.
+
+
+Code of Conduct
+---------------
+
+* Respect original articles
+
+Get Shadowsocks source code
+---------------------------
+
+[Shadowsocks master branch](https://github.com/shadowsocks/shadowsocks/tree/master)
+
+
