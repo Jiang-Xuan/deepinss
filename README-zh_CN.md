@@ -39,6 +39,8 @@ SSS
 * 覆盖每一行代码
 * 交互式解读代码
 
+![program-exec-flow-chart](./assets/images/program-exec-flow-chart.png)
+
 开发中
 -----
 
