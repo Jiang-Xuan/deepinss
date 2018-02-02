@@ -50,6 +50,7 @@ Code of Conduct
 ---------------
 
 * Respect original articles
+* Explain every point in depth.
 
 Get Shadowsocks source code
 ---------------------------
