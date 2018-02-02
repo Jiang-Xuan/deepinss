@@ -51,6 +51,7 @@ SSS
 
 * 尊重原创文章
 * 深度解读每一个点
+* 仅仅为探究技术
 
 获取源码
 -------
@@ -65,6 +66,7 @@ git clone https://github.com/shadowsocks/shadowsocks.git
 -----
 
 * [github.io](https://github.io)
+* [Shadowsocks](https://github.com/shadowsocks/shadowsocks)
 
 项目维护者
 --------

@@ -51,6 +51,7 @@ Code of Conduct
 
 * Respect original articles
 * Explain every point in depth.
+* Just to explore the technology.
 
 Get Shadowsocks source code
 ---------------------------
@@ -61,6 +62,7 @@ Salute
 ------
 
 * [github.io](https://github.io)
+* [Shadowsocks](https://github.com/shadowsocks/shadowsocks)
 
 Maintainers
 -----------
