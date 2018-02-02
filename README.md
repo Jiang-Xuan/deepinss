@@ -1,4 +1,4 @@
-Tables of Contents
+Table of Contents
 ==================
 
 <ul>
