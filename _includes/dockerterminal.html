@@ -31,7 +31,7 @@
     right: 100%;
     height: 30px;
     width: 100%;
-    background-color: #33333380;
+    background-color: rgba(51, 51, 51, 0.5);
     transform: translateY(590px);
     z-index: 999;
     opacity: 0;
@@ -54,6 +54,13 @@
     transition: .2s ease-in-out;
     background-color: rgba(90, 55, 36, 0.5);
     text-shadow: 2px 2px 1px black;
+  }
+  #terminal-container-fixed #terminal-container-title::after {
+    content: ' beta';
+    display: inline-block;
+    vertical-align: super;
+    font-size: small;
+    color: aquamarine;
   }
   #terminal-container-fixed #terminal-container-checkbox:checked ~  #terminal-container {
     background-color: black;
@@ -86,15 +93,16 @@
         cursorStyle: 'underline'
       })
       var terminalContainer = document.getElementById('terminal-container')
-      var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy', 'echo-protocol')
+      var socket = new WebSocket('ws://127.0.0.1:8080')
+      // var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy', 'echo-protocol')
       socket.addEventListener('open', () => {
         term.writeln('✅  连接代理 WebSocket 服务器成功')
       })
       function countDownloadDataSize(event) {
-        // 计算字符串暂用的字节数
+        // 计算字符串占用的字节数
         dataCount += event.data.replace(/[^\x00-\xFF]/g,'**').length
 
-        terminalContainerTitle.textContent = `在线命令行工具 (下行流量: ${(dataCount/1024).toFixed(3)}K)`
+        terminalContainerTitle.textContent = `在线命令行工具 (下行流量: ${(dataCount/1024).toFixed(3)}K) `
       }
       function handShake(result) {
         var json
@@ -129,10 +137,17 @@
         }
       }
       socket.addEventListener('message', handShake)
-      socket.addEventListener('close', () => {
+      socket.addEventListener('close', (event) => {
         term.detach(socket)
         term.writeln('\n')
-        term.writeln('👽  连接已经终止, 容器已经被销毁')
+
+        if (event.code === 1008) {
+          term.writeln('👀  WebSocket 代理服务器拒绝进一步的连接, 原因:')
+          term.writeln('😔  有 100 人在同时使用容器服务, 没有可用的容器可以使用, 请稍后尝试')
+          term.writeln('😣  如果有疑问, 请发邮件至 645762213#qq.com(#替换成@)')
+        } else {
+          term.writeln('👽  连接已经终止, 容器已经被销毁')
+        }
       })
       term.open(terminalContainer)
       term.writeln('🤪  Welcome to deepinss 项目')
