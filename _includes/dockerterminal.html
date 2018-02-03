@@ -1,0 +1,161 @@
+<!-- Docker 的命令行工具 -->
+<script src="/deepinss/assets/scripts/xterm.js"></script>
+<script src="/deepinss/assets/scripts/addons/attach/attach.js"></script>
+<link rel="stylesheet" href="/deepinss/assets/css/xterm.css">
+
+<section id="terminal-container-fixed">
+  <input type="checkbox" id="terminal-container-checkbox">
+  <label id="terminal-container-label" for="terminal-container-checkbox"></label>
+  <div id="terminal-container-title">
+    在线命令行工具
+  </div>
+  <div id="terminal-container">
+    <!-- 命令行 -->
+  </div>
+</section>
+
+<style>
+  #terminal-container-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 100%;
+    height: 620px; /* 576 */
+    width: 769px;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  #terminal-container-fixed label {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    height: 30px;
+    width: 100%;
+    background-color: rgba(51, 51, 51, 0.5);
+    transform: translateY(590px);
+    z-index: 999;
+    opacity: 0;
+
+    transition: .2s ease-in-out;
+  }
+  #terminal-container-fixed #terminal-container {
+    margin-left: -100%;
+    margin-right: 100%;
+    height: 590px;
+    transform: translateY(590px);
+    transition: .2s ease-in-out;
+  }
+  #terminal-container-fixed #terminal-container-title {
+    margin-left: -100%;
+    margin-right: 100%;
+    text-align: center;
+    line-height: 30px;
+    transform: translateY(590px);
+    transition: .2s ease-in-out;
+    background-color: rgba(90, 55, 36, 0.5);
+    text-shadow: 2px 2px 1px black;
+  }
+  #terminal-container-fixed #terminal-container-title::after {
+    content: ' beta';
+    display: inline-block;
+    vertical-align: super;
+    font-size: small;
+    color: aquamarine;
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~  #terminal-container {
+    background-color: black;
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~ label {
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox:checked ~ #terminal-container-title {
+    transform: translateY(0px);
+  }
+  #terminal-container-fixed #terminal-container-checkbox {
+    display: none;
+  }
+</style>
+
+<script>
+;(() => {
+  var terminalContainerLabel = document.getElementById('terminal-container-label')
+  var terminalContainerTitle = document.getElementById('terminal-container-title')
+  var dataCount = 0
+
+  terminalContainerLabel.addEventListener('click', connect)
+
+  function connect() {
+    terminalContainerLabel.removeEventListener('click', connect)
+    setTimeout(() => {
+      var term = new Terminal({
+        cursorBlink: true,
+        cursorStyle: 'underline'
+      })
+      var terminalContainer = document.getElementById('terminal-container')
+      // var socket = new WebSocket('ws://127.0.0.1:8080')
+      var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy')
+      socket.addEventListener('open', () => {
+        term.writeln('✅  连接代理 WebSocket 服务器成功')
+      })
+      function countDownloadDataSize(event) {
+        // 计算字符串占用的字节数
+        dataCount += event.data.replace(/[^\x00-\xFF]/g,'**').length
+
+        terminalContainerTitle.textContent = `在线命令行工具 (下行流量: ${(dataCount/1024).toFixed(3)}K) `
+      }
+      function handShake(result) {
+        var json
+
+        try {
+          json = JSON.parse(result.data)
+        } catch (e) {
+          /* 解析 JSON 出错*/
+          /* TODO: handle error */
+          debugger
+        }
+
+        if (json.code === 201) {
+          term.writeln('✅  WebSocket 代理服务器已经接受连接')
+        } else if (json.code === 219) {
+          term.writeln('🚚  尝试创建 docker 容器...')
+        } else if (json.code === 200) {
+          term.writeln('✅  创建 docker 容器成功')
+        } else if (json.code === 220) {
+          term.writeln('🚚  启动 docker 容器成功, 尝试连接容器...')
+        } else if(json.code === 222) {
+          term.writeln('🤓  连接 container 成功, 已经进入 Python 3.6.4 环境')
+
+          socket.removeEventListener('message', handShake)
+          socket.addEventListener('message', countDownloadDataSize)
+
+          term.attach(socket)
+
+          setTimeout(() => {
+            term.focus()
+          }, 0)
+        }
+      }
+      socket.addEventListener('message', handShake)
+      socket.addEventListener('close', (event) => {
+        term.detach(socket)
+        term.writeln('\n')
+
+        if (event.code === 1008) {
+          term.writeln('👀  WebSocket 代理服务器拒绝进一步的连接, 原因:')
+          term.writeln('😔  有 100 人在同时使用容器服务, 没有可用的容器可以使用, 请稍后尝试')
+          term.writeln('😣  如果有疑问, 请发邮件至 645762213#qq.com(#替换成@)')
+        } else {
+          term.writeln('👽  连接已经终止, 容器已经被销毁')
+        }
+      })
+      term.open(terminalContainer)
+      term.writeln('🤪  Welcome to deepinss 项目, 有疑问请发邮件至 645762213#qq.com(#替换成@)')
+      term.writeln('🚚  尝试连接代理 WebSocket 服务器...')
+
+      terminalContainerLabel.removeEventListener('click', connect)
+    }, 0)
+  }
+
+})();
+</script>
