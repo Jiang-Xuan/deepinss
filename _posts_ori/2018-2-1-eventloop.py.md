@@ -347,6 +347,24 @@ ID: `modify-inter`
 TITLE: `KqueueLoop modify 程序执行流`
 -->
 
+### close
+
+#### 简介
+
+关闭该 kqueue 事件监听器
+
+```python
+def close(self):
+    self._kqueue.close()
+```
+
+#### 接收参数
+
+无
+
+class SelectLoop
+----------------
+
 {% include eventloopanimation.html %}
 
 <script>
