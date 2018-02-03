@@ -86,7 +86,7 @@
         cursorStyle: 'underline'
       })
       var terminalContainer = document.getElementById('terminal-container')
-      var socket = new WebSocket('ws://127.0.0.1:8080', 'echo-protocol')
+      var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy', 'echo-protocol')
       socket.addEventListener('open', () => {
         term.writeln('✅  连接代理 WebSocket 服务器成功')
       })
