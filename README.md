@@ -20,10 +20,10 @@ Interpretation the source code of Shadowsocks.
 
 [中文 README](README-zh_CN.md)
 
-What's happening on this project
+0.1.0 Released Now! 🎉🎉🎉
 --------------------------------
 
-Not yet.
+Enable support online python environment🚀.
 
 Introduce
 ---------
