@@ -348,6 +348,7 @@ TITLE: `KqueueLoop modify 程序执行流`
 -->
 
 {% include eventloopanimation.html %}
+{% include dockerterminal.html %}
 
 <script>
 ;(() => {

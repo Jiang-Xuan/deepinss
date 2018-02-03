@@ -462,6 +462,7 @@ def modify(self, fd, mode):
 
 
 {% include eventloopanimation.html %}
+{% include dockerterminal.html %}
 
 <script>
 /* Transformed by babel-transform.js */
