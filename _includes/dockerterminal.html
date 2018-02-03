@@ -93,8 +93,8 @@
         cursorStyle: 'underline'
       })
       var terminalContainer = document.getElementById('terminal-container')
-      var socket = new WebSocket('ws://127.0.0.1:8080')
-      // var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy', 'echo-protocol')
+      // var socket = new WebSocket('ws://127.0.0.1:8080')
+      var socket = new WebSocket('wss://jiangxuan.org/deepinss/docker/wsproxy')
       socket.addEventListener('open', () => {
         term.writeln('✅  连接代理 WebSocket 服务器成功')
       })
@@ -124,7 +124,7 @@
         } else if (json.code === 220) {
           term.writeln('🚚  启动 docker 容器成功, 尝试连接容器...')
         } else if(json.code === 222) {
-          term.writeln('🤓  连接 container 成功, 已经进入 Linux 环境')
+          term.writeln('🤓  连接 container 成功, 已经进入 Python 3.6.4 环境')
 
           socket.removeEventListener('message', handShake)
           socket.addEventListener('message', countDownloadDataSize)
@@ -150,7 +150,7 @@
         }
       })
       term.open(terminalContainer)
-      term.writeln('🤪  Welcome to deepinss 项目')
+      term.writeln('🤪  Welcome to deepinss 项目, 有疑问请发邮件至 645762213#qq.com(#替换成@)')
       term.writeln('🚚  尝试连接代理 WebSocket 服务器...')
 
       terminalContainerLabel.removeEventListener('click', connect)
