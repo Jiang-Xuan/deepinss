@@ -1,1 +1,18 @@
 <script src="/deepinss/assets/scripts/eventloopanimation.js"></script>
+<script>
+;(() => {
+  function $(selector) {
+    return document.querySelector(selector)
+  }
+  function $$(selector) {
+    return document.querySelectorAll(selector)
+  }
+  function $ela(dom) {
+    return new EventLoopAnimation(dom)
+  }
+
+  window.$ = $
+  window.$$ = $$
+  window.$ela = $ela
+})();
+</script>
