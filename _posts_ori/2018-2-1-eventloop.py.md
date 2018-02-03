@@ -106,7 +106,7 @@ class KqueueLoop
 
 ### 简介
 
-[Kqueue](https://en.wikipedia.org/wiki/Kqueue) 形式的轮询, 获取发生的事件. 支持的平台有 NetBSD, OpenBSD, DragonflyBSD, and OS X(数据来源自维基百科)
+[Kqueue](https://en.wikipedia.org/wiki/Kqueue) 形式的轮询, 获取发生的事件. 支持的平台有 NetBSD, OpenBSD, DragonflyBSD, and OS X(数据来源自[维基百科](https://en.wikipedia.org/wiki/Kqueue))
 
 ### 类常量
 
@@ -132,7 +132,7 @@ def __init__(self):
 
 #### 简介
 
-监听或者是移除监听一个文件描述符的状态
+监听或者是移除监听一个文件描述符的状态, 该函数为私有函数
 
 ```python
 def _control(self, fd, mode, flags):
@@ -171,8 +171,180 @@ CODETYPE: `python`
 
 ID: `_control-inter`
 
-TITLE: 'EventLoop _control 程序执行流'
+TITLE: `KqueueLoop _control 程序执行流`
 
+-->
+
+### poll
+
+#### 简介
+
+取出来发生的事件, 一次取出来的最多的事件数量为 `KqueueLoop.MAX_EVENTS`, 超时时间为 `timeout`, 如果超过了超时时间依旧没有事件发生, 程序继续往下走
+
+```python
+def poll(self, timeout):
+    if timeout < 0:
+        timeout = None  # kqueue behaviour
+    events = self._kqueue.control(
+        None, KqueueLoop.MAX_EVENTS, timeout
+    )
+    results = defaultdict(lambda: POLL_NULL)
+    for e in events:
+        fd = e.ident
+        if e.filter == select.KQ_FILTER_READ:
+            results[fd] |= POLL_IN
+        elif e.filter == select.KQ_FILTER_WRITE:
+            results[fd] |= POLL_OUT
+    return results.items()
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *timeout* 超时时间
+
+#### 注意点
+
+[`defaultdict`](https://docs.python.org/2/library/collections.html#defaultdict-objects) 类 在给一个 key 赋值的时候, 该 key 不存在, 就会调用 `lambda: POLL_NULL`, 这就是 **POLL_NULL** 常量的用处.
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def poll(self, timeout):
+    if timeout < 0:
+        timeout = None  # kqueue behaviour
+    events = self._kqueue.control(
+        None, KqueueLoop.MAX_EVENTS, timeout
+    )
+    results = defaultdict(lambda: POLL_NULL)
+    for e in events:
+        fd = e.ident
+        if e.filter == select.KQ_FILTER_READ:
+            results[fd] |= POLL_IN
+        elif e.filter == select.KQ_FILTER_WRITE:
+            results[fd] |= POLL_OUT
+    return results.items()
+  `
+
+CODETYPE: `python`
+
+ID: `poll-inter`
+
+TITLE: `KqueueLoop poll 程序执行流`
+-->
+
+### register
+
+#### 简介
+
+注册一个 fd(文件描述符) 进入监听序列, 监听模式为 mode
+
+```python
+def register(self, fd, mode):
+    self._fds[fd] = mode # 文件描述符和其监听模式的对应
+    self._control(fd, mode, select.KQ_EV_ADD) # 添加注册 传入 Kqueue 的添加常量
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *fd* 文件描述符
+* *mode* 监听模式
+
+#### 注意点
+
+`self._fds[fd] = mode` 将监听的文件描述符和其监听的模式存储在 `_fd` dict 中, 方便在移除的时候取出来该文件描述符在监听时候的 mode
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def register(self, fd, mode):
+    self._fds[fd] = mode # 文件描述符和其监听模式的对应
+    self._control(fd, mode, select.KQ_EV_ADD) # 添加注册 传入 Kqueue 的添加常量
+  `
+
+CODETYPE: `python`
+
+ID: `register-inter`
+
+TITLE: `KqueueLoop register 程序执行流`
+-->
+
+### unregister
+
+#### 简介
+
+移除注册在监听序列中的 fd(文件描述符), 其监听模式已经存储在 `self._fds` 中
+
+```python
+def unregister(self, fd):
+    self._control(fd, self._fds[fd], select.KQ_EV_DELETE) # KQ_EN_DELETE 删除注册 self._fds 拿出来注册该文件描述符的时候的模式
+    del self._fds[fd] # 移除 KqueueLopp 关于该文件描述符的数据(mode)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *fd* 要移除的文件描述符
+
+#### 注意点
+
+移除注册时候不需要传递 mode, 因为在监听的时候已经保存在 `self._fds` 中
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def unregister(self, fd):
+    self._control(fd, self._fds[fd], select.KQ_EV_DELETE) # KQ_EN_DELETE 删除注册 self._fds 拿出来注册该文件描述符的时候的模式
+    del self._fds[fd] # 移除 KqueueLopp 关于该文件描述符的数据(mode)
+  `
+
+CODETYPE: `python`
+
+ID: `unregister-inter`
+
+TITLE: `KqueueLoop unregister 程序执行流`
+-->
+
+### modify
+
+#### 简介
+
+修改一个文件描述符的监听模式, 从 POLL_IN 到 POLL_OUT 或者是反过来
+
+```python
+def modify(self, fd, mode):
+    self.unregister(fd) # 删除注册 file descriptor => mode
+    self.register(fd, mode) # 重新注册 file descriptor => mode
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *fd* 文件描述符
+* *mode* 修改成的监听模式
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def modify(self, fd, mode):
+    self.unregister(fd) # 删除注册 file descriptor => mode
+    self.register(fd, mode) # 重新注册 file descriptor => mode
+  `
+
+CODETYPE: `python`
+
+ID: `modify-inter`
+
+TITLE: `KqueueLoop modify 程序执行流`
 -->
 
 {% include eventloopanimation.html %}
@@ -191,5 +363,50 @@ TITLE: 'EventLoop _control 程序执行流'
     .state().hideCommentary().moveToLine(6).commentary('创建一个 kevent, 传递参数 fd(文件描述符), select.KQ_FILTER_WRITE(写筛选器), flags(标志, 删除还是添加)')
     .state().hideCommentary().moveToLine(7).commentary('循环需要监听的事件')
     .state().hideCommentary().moveToLine(8).commentary('调用 self._kqueue.control 传入 [e](需要监听的事件), 0(取出来的最大事件, 这里只是开始该监听模式, 并不处理事件)')
+})();
+;(() => {
+  const pollDOM = $('#poll-inter')
+  const pollELA = $ela(pollDOM)
+
+  pollELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('如果 timeout 参数小于零')
+    .state().hideCommentary().moveToLine(3).commentary('将 None 赋值给 timeout, 根据注释意为让 kqueue 自行决定行为')
+    .state().hideCommentary().moveToLine(4).commentary('调用 self._kqueue.control 函数, 传入合适的参数, 获取发生的所有事件')
+    .state().hideCommentary().moveToLine(7).commentary('创建 defaultdict 类型变量 results')
+    .state().hideCommentary().moveToLine(8).commentary('循环所有发生的事件')
+    .state().hideCommentary().moveToLine(9).commentary('获取发生该事件的文件描述符')
+    .state().hideCommentary().moveToLine(10).commentary('如果事件的过滤器类型为 select.KQ_FILTER_READ, 说明该事件是可读事件, 有数据流入')
+    .state().hideCommentary().moveToLine(11).commentary('给 results 的 fd 数据赋予 POLL_IN')
+    .state().hideCommentary().moveToLine(12).commentary('如果事件的过滤器类型为 select.KQ_FILTER_WRITE, 说明该事件是可写事件, 表示数据可以被写入')
+    .state().hideCommentary().moveToLine(13).commentary('给 results 的 fd 数据赋予 POLL_OUT')
+    .state().hideCommentary().moveToLine(14).commentary('调用 results.items() 返回 list 类型数据 [(6(文件描述符), 0x02(事件模式)), (4, 0x01)]')
+})();
+;(() => {
+  const registerDOM = $('#register-inter')
+  const registerELA = $ela(registerDOM)
+
+  registerELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('文件描述符和其监听模式的对应')
+    .state().hideCommentary().moveToLine(3).commentary('调用 self._control, 传入参数 fd(文件描述符), mode(监听模式), select.KQ_EV_ADD(select 模块常量, 添加监听)').pushJumpFuncList('self._control', '#_control-inter')
+})();
+;(() => {
+  const unregisterDOM = $('#unregister-inter')
+  const unregisterELA = $ela(unregisterDOM)
+
+  unregisterELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('调用 self._control, 传入参数 fd(文件描述符), self._fds[fd](从 self._fds 中取出来添加监听时候的模式), select.KQ_EV_DELETE(select 模块常量, 移除监听)')
+    .state().hideCommentary().moveToLine(4).commentary('删除 self._fds 中关于该文件描述符的数据')
+})();
+;(() => {
+  const modifyDOM = $('#modify-inter')
+  const modifyELA = $ela(modifyDOM)
+
+  modifyELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('首先取消注册该文件描述符, 传入参数 fd(文件描述符)').pushJumpFuncList('self.unregister', '#unregister-inter')
+    .state().hideCommentary().moveToLine(3).commentary('然后重新注册该文件描述符, 传入参数 fd(文件描述符), mode(监听模式)').pushJumpFuncList('self.register', '#register-inter')
 })();
 </script>
