@@ -18,7 +18,7 @@
   #terminal-container-fixed {
     position: fixed;
     bottom: 0;
-    right: 20px;
+    left: 100%;
     height: 620px; /* 576 */
     width: 769px;
     display: flex;
@@ -28,7 +28,7 @@
   #terminal-container-fixed label {
     position: absolute;
     top: 0;
-    left: 0;
+    right: 100%;
     height: 30px;
     width: 100%;
     background-color: #33333380;
@@ -39,11 +39,15 @@
     transition: .2s ease-in-out;
   }
   #terminal-container-fixed #terminal-container {
+    margin-left: -100%;
+    margin-right: 100%;
     height: 590px;
     transform: translateY(590px);
     transition: .2s ease-in-out;
   }
   #terminal-container-fixed #terminal-container-title {
+    margin-left: -100%;
+    margin-right: 100%;
     text-align: center;
     line-height: 30px;
     transform: translateY(590px);
@@ -69,6 +73,8 @@
 <script>
 ;(() => {
   var terminalContainerLabel = document.getElementById('terminal-container-label')
+  var terminalContainerTitle = document.getElementById('terminal-container-title')
+  var dataCount = 0
 
   terminalContainerLabel.addEventListener('click', connect)
 
@@ -84,6 +90,12 @@
       socket.addEventListener('open', () => {
         term.writeln('✅  连接代理 WebSocket 服务器成功')
       })
+      function countDownloadDataSize(event) {
+        // 计算字符串暂用的字节数
+        dataCount += event.data.replace(/[^\x00-\xFF]/g,'**').length
+
+        terminalContainerTitle.textContent = `在线命令行工具 (下行流量: ${(dataCount/1024).toFixed(3)}K)`
+      }
       function handShake(result) {
         var json
 
@@ -107,11 +119,11 @@
           term.writeln('🤓  连接 container 成功, 已经进入 Linux 环境')
 
           socket.removeEventListener('message', handShake)
+          socket.addEventListener('message', countDownloadDataSize)
 
           term.attach(socket)
 
           setTimeout(() => {
-            socket.send('\n')
             term.focus()
           }, 0)
         }
