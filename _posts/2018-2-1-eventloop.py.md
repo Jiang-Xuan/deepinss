@@ -680,6 +680,146 @@ def add(self, f, mode, handler):
 <!-- Generate by template.js END -->
 
 
+### remove
+
+移除 f 的监听
+
+```python
+def remove(self, f):
+    fd = f.fileno()
+    del self._fdmap[fd]
+    self._impl.unregister(fd)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *f* 文件, 可为 socket 文件
+
+#### 程序执行流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="eventloop_remove 程序执行流" id="eventloop_remove-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def remove(self, f):
+    fd = f.fileno()
+    del self._fdmap[fd]
+    self._impl.unregister(fd)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
+### add_periodic
+
+添加周期性函数
+
+```python
+def add_periodic(self, callback):
+    self._periodic_callbacks.append(callback)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *callback* 回调函数
+
+### remove_periodic
+
+移除周期性函数
+
+```python
+def remove_periodic(self, callback):
+    self._periodic_callbacks.remove(callback)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *callback* 回调函数
+
+### modify
+
+修改一个 f 的监听模式
+
+```python
+def modify(self, f, mode):
+    fd = f.fileno()
+    self._impl.modify(fd, mode)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *mode* 修改为的监听模式
+
+#### 交互式程序流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="eventloop modify 程序执行流" id="eventloop_modify-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def modify(self, f, mode):
+    fd = f.fileno()
+    self._impl.modify(fd, mode)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
 
@@ -727,7 +867,19 @@ def add(self, f, mode, handler):
   var eventloop_addDOM = $('#eventloop_add-inter');
   var eventloop_addELA = $ela(eventloop_addDOM);
 
-  eventloop_addELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('以 fd 为 key, 以元组 (f, handler) 为值, 存储在 self._fdmap 中');
+  eventloop_addELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('以 fd 为 key, 以元组 (f, handler) 为值, 存储在 self._fdmap 中').state().hideCommentary().moveToLine(4).commentary('调用 self._impl.register, 传入参数 fd, mode 来注册监听 fd 的事件 mode (以 KqueueLoop 为例)').pushJumpFuncList('self._impl.register', '#register-inter');
+})();
+;(function () {
+  var eventloop_removeDOM = $('#eventloop_remove-inter');
+  var eventloop_removeELA = $ela(eventloop_removeDOM);
+
+  eventloop_removeELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('删除 self._fdmap 中关于该文件描述符的数据').state().hideCommentary().moveToLine(4).commentary('调用 self._impl.unregister, 传入参数 fd, 来移除注册 fd 的事件(以 KqueueLoop 为例)').pushJumpFuncList('self._impl.unregister', '#unregister-inter');
+})();
+;(function () {
+  var eventloop_modifyDOM = $('#eventloop_modify-inter');
+  var eventloop_modifyELA = $ela(eventloop_modifyDOM);
+
+  eventloop_modifyELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('调用 self._impl.modify, 传入参数 fd, mode 来修改 fd 已经注册的事件(以 KqueueLoop 为例)').pushJumpFuncList('self._impl.modify', '#modify-inter');
 })();
 /* Transformed by babel-transform.js END */
 </script>
