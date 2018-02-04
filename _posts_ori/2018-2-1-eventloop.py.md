@@ -362,8 +362,163 @@ def close(self):
 
 无
 
-class SelectLoop
+class EventLoop
 ----------------
+
+事件轮询器, 根据不同的平台创建不同的时间获取方式 [epoll](https://en.wikipedia.org/wiki/Epoll), kqueue(https://en.wikipedia.org/wiki/Kqueue), select(https://en.wikipedia.org/wiki/Select_(Unix)). 处理周期性的函数, 比如: 过期请求的销毁.将发生事件的文件描述符分发给相应的处理器.
+
+### \_\_init\_\_ 构造函数
+
+#### 简介
+
+处理不同的平台获取事件的不同方式, 初始化一些变量
+
+```python
+def __init__(self):
+    if hasattr(select, 'epoll'):
+        self._impl = select.epoll()
+        model = 'epoll'
+    elif hasattr(select, 'kqueue'):
+        self._impl = KqueueLoop()
+        model = 'kqueue'
+    elif hasattr(select, 'select'):
+        self._impl = SelectLoop()
+        model = 'select'
+    else:
+        raise Exception('can not find any available functions in select '
+                        'package')
+    self._fdmap = {}  # (f, handler)
+    self._last_time = time.time()
+    self._periodic_callbacks = []
+    self._stopping = False
+    logging.debug('using event model: %s', model)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+
+#### 注意点
+
+* \_fdmap 数据格式为
+    ```python
+    {
+      fd: (f, handler) # 文件描述: (文件, 该文件发生事件时的处理器)
+    }
+    ```
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def __init__(self):
+    if hasattr(select, 'epoll'):
+        self._impl = select.epoll()
+        model = 'epoll'
+    elif hasattr(select, 'kqueue'):
+        self._impl = KqueueLoop()
+        model = 'kqueue'
+    elif hasattr(select, 'select'):
+        self._impl = SelectLoop()
+        model = 'select'
+    else:
+        raise Exception('can not find any available functions in select '
+                        'package')
+    self._fdmap = {}  # (f, handler)
+    self._last_time = time.time()
+    self._periodic_callbacks = []
+    self._stopping = False
+    logging.debug('using event model: %s', model)
+  `
+
+CODETYPE: `python`
+
+ID: `eventloop__init__-inter`
+
+TITLE: `EventLoop __init__ 程序执行流`
+-->
+
+### poll
+
+#### 简介
+
+获取事件
+
+```python
+def poll(self, timeout=None):
+    events = self._impl.poll(timeout)
+    return [(self._fdmap[fd][0], fd, event) for fd, event in events]
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *timeout* 超时时间
+
+#### 解读
+
+调用 [`selv._impl.poll`](#poll-inter) 获取事件, events 为获取出来的事件列表, 格式为
+
+```python
+[(
+  fd, # 文件按描述
+  mode # 发生的事件类型
+), (
+  fd, # 文件描述符
+  mode # 发生的事件类型
+)]
+```
+
+数组推导式来获取关于该文件描述符的文件, 最后返回的数据格式为:
+
+```python
+[(
+  f, # 文件
+  fd, # 文件描述符
+  mode # 发生的事件类型
+), (
+  f, # 文件
+  fd, # 文件描述符
+  mode # 发生的事件类型
+)]
+```
+
+### add
+
+将文件加入监听序列
+
+```python
+def add(self, f, mode, handler):
+    fd = f.fileno()
+    self._fdmap[fd] = (f, handler)
+    self._impl.register(fd, mode)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *f* 文件, 可为 socket 文件
+* *mode* 监听的事件类型
+* *handler* 当 f 发生了 mode 事件时的处理器
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+CODECONTENT:
+  `
+def add(self, f, mode, handler):
+    fd = f.fileno()
+    self._fdmap[fd] = (f, handler)
+    self._impl.register(fd, mode)
+  `
+
+CODETYPE: `python`
+
+ID: `eventloop_add-inter`
+
+TITLE: `eventloop add 程序执行流`
+-->
 
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
@@ -428,4 +583,36 @@ class SelectLoop
     .state().hideCommentary().moveToLine(2).commentary('首先取消注册该文件描述符, 传入参数 fd(文件描述符)').pushJumpFuncList('self.unregister', '#unregister-inter')
     .state().hideCommentary().moveToLine(3).commentary('然后重新注册该文件描述符, 传入参数 fd(文件描述符), mode(监听模式)').pushJumpFuncList('self.register', '#register-inter')
 })();
+;(() => {
+  const eventloop__init__DOM = $('#eventloop__init__-inter')
+  const eventloop__init__ELA = $ela(eventloop__init__DOM)
+
+  eventloop__init__ELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('select 模块如果支持 epoll')
+    .state().hideCommentary().moveToLine(3).commentary('创建 epoll, 存储在 self._impl 中')
+    .state().hideCommentary().moveToLine(4).commentary('将字符串 "epoll" 赋给 mode 变量')
+    .state().hideCommentary().moveToLine(5).commentary('select 模块如果支持 kqueue')
+    .state().hideCommentary().moveToLine(6).commentary('创建 KqueueLoop, 存储在 self_impl 中')
+    .state().hideCommentary().moveToLine(7).commentary('将字符串 "kqueue" 赋给 mode 变量')
+    .state().hideCommentary().moveToLine(8).commentary('select 模块如果支持 select')
+    .state().hideCommentary().moveToLine(9).commentary('创建 SelectLoop, 存储在 self_impl 中')
+    .state().hideCommentary().moveToLine(10).commentary('将字符串 "select" 赋给 mode 变量')
+    .state().hideCommentary().moveToLine(11).commentary('如果都不支持, 抛出错误')
+    .state().hideCommentary().moveToLine(14).commentary('_fdmap 变量, 存储 f(文件, socket类型数据或其他) -> handler(发生事件时对应的处理器)')
+    .state().hideCommentary().moveToLine(15).commentary('_last_time 储存最后一次调用周期性函数的时间, 初始化为当前时间')
+    .state().hideCommentary().moveToLine(16).commentary('_periodic_callbacks 周期性回调函数, 在处理完一个事件周期之后调用这里的所有 callback')
+    .state().hideCommentary().moveToLine(17).commentary('_stopping 变量标识是否停止轮询器, 初始化为 False')
+    .state().hideCommentary().moveToLine(18).commentary('打印使用的事件获取方式 <\'using event model: %s\', model>')
+
+})();
+;(() => {
+  const eventloop_addDOM = $('#eventloop_add-inter')
+  const eventloop_addELA = $ela(eventloop_addDOM)
+
+  eventloop_addELA
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd')
+    .state().hideCommentary().moveToLine(3).commentary('以 fd 为 key, 以元组 (f, handler) 为值, 存储在 self._fdmap 中')
+})()
 </script>
