@@ -639,7 +639,7 @@ def run(self):
     while not self._stopping:
         asap = False
         try:
-            events = self.poll(TIMEOUT_PRECISION) # 取出来所有发生事件的 socket
+            events = self.poll(TIMEOUT_PRECISION)
         except (OSError, IOError) as e:
             if errno_from_exception(e) in (errno.EPIPE, errno.EINTR):
                 # EPIPE: Happens when the client closes the connection
@@ -652,8 +652,8 @@ def run(self):
                 traceback.print_exc()
                 continue
 
-        for sock, fd, event in events: # 事件 socket 事件文件描述符 事件模式(POLL_IN POLL_OUT)
-            handler = self._fdmap.get(fd, None) # 根据 file descriptor 获取 处理器 shadowsocks.tcpreply.TCPReply
+        for sock, fd, event in events:
+            handler = self._fdmap.get(fd, None)
             if handler is not None:
                 handler = handler[1]
                 try:
@@ -671,17 +671,27 @@ def run(self):
 
 * *self* 实例本身
 
+#### 注意点
+
+* errno.EPIPE <https://groups.google.com/forum/#!topic/nodejs/8VBd36dPbnU> 有这么一句话
+  >EPIPE means that writing of (presumably) the HTTP request failed
+because the other end closed the connection.
+
+  > EPIPE 意味着(大概)向 http 请求写入数据的时候, 对方已经关闭了连接
+
+* errno.EINTR <http://man7.org/linux/man-pages/man7/signal.7.html> 官方文档, 大概意思就是说如果有一个阻塞操作, 但是此时收到了系统信号(比如 Ctrl + C, 或者是其他信号), 此时如果注册了该信号的处理器, 应该立即去执行该处理器, 所以此阻塞操作会抛出一个异常, errno 为 error.EINTR, 在 [local.py](/deepinss/2018/01/31/local.py.html) 里面有这么一句代码 `signal.signal(getattr(signal, 'SIGQUIT', signal.SIGTERM), handler)`(收到该系统信号之后, 优雅的退出程序, 也就是处理完已创建的连接才退出),所以需要在这里处理一下这个异常.
+
 #### 交互式程序流
 
 <!-- EVENTLOOPANIMATION
-EVENTCONTENT:
+CODECONTENT:
   `
 def run(self):
     events = []
     while not self._stopping:
         asap = False
         try:
-            events = self.poll(TIMEOUT_PRECISION) # 取出来所有发生事件的 socket
+            events = self.poll(TIMEOUT_PRECISION)
         except (OSError, IOError) as e:
             if errno_from_exception(e) in (errno.EPIPE, errno.EINTR):
                 # EPIPE: Happens when the client closes the connection
@@ -694,8 +704,8 @@ def run(self):
                 traceback.print_exc()
                 continue
 
-        for sock, fd, event in events: # 事件 socket 事件文件描述符 事件模式(POLL_IN POLL_OUT)
-            handler = self._fdmap.get(fd, None) # 根据 file descriptor 获取 处理器 shadowsocks.tcpreply.TCPReply
+        for sock, fd, event in events:
+            handler = self._fdmap.get(fd, None)
             if handler is not None:
                 handler = handler[1]
                 try:
@@ -836,6 +846,33 @@ TITLE: `eventloop run 程序执行流`
   const eventloop_runELA = $ela(eventloop_runDOM)
 
   eventloop_runELA
-    .state()
-})()
+    .state().moveToLine(1).showCodeBar().commentary('执行函数')
+    .state().hideCommentary().moveByRela().commentary('一次循环产生的事件, 初始化为空 list')
+    .state().hideCommentary().moveByRela().commentary('轮询器如果没有被关闭')
+    .state().hideCommentary().moveByRela().commentary('asap 初始化为 False')
+    .state().hideCommentary().moveByRela(2).commentary('调用 self.poll 传入参数 TIMEOUT_PRECISION').pushJumpFuncList('self.poll', '#poll-1')
+    .state().hideCommentary().moveByRela().commentary('如果在获取事件中出现了 OSError, IOError 错误')
+    .state().hideCommentary().moveByRela().commentary('调用 errno_from_exception 获取错误的 errno, 如果是 errno.EPIPE, errno.EINTR 中其一').pushJumpFuncList('errno_from_exception(暂无链接)')
+    .state().hideCommentary().moveByRela().commentary('EPIPE 发生, 当尝试写入数据的时候对方已经关闭了连接')
+    .state().hideCommentary().moveByRela().commentary('EINTR 发生, 当程序接收到了一个系统信号')
+    .state().hideCommentary().moveByRela().commentary('尽快的处理(销毁)关于这两个事件的连接, 也就是尽快的调用周期性的 callback')
+    .state().hideCommentary().moveByRela().commentary('asap = True')
+    .state().hideCommentary().moveByRela().commentary('打印错误信息')
+    .state().hideCommentary().moveByRela().commentary('如果错误不是 errno.EPIPE, errno.EINTR 中其一')
+    .state().hideCommentary().moveByRela().commentary('打印错误信息')
+    .state().hideCommentary().moveByRela().commentary('打印调用栈')
+    .state().hideCommentary().moveByRela().commentary('不再处理事件, 进行下一次的循环')
+    .state().hideCommentary().moveByRela(2).commentary('处理所有的事件, 取出一个事件的 sock(socket 句柄), fd(文件描述符), event(发生的事件类型)')
+    .state().hideCommentary().moveByRela().commentary('从 self._fdmap 获取关于该文件描述符的数据 fd, handler, 赋值给 handler')
+    .state().hideCommentary().moveByRela().commentary('如果 handler 不是 None')
+    .state().hideCommentary().moveByRela().commentary('获取 处理器, 赋值给 handler')
+    .state().hideCommentary().moveByRela(2).commentary('尝试调用该文件描述符的处理器, 传递参数 sock, fd, event').pushJumpFuncList('tcprelay.handle_event(暂无链接)').pushJumpFuncList('udprelay.handle_event(暂无链接)').pushJumpFuncList('asyncdns.handle_event(暂无链接)')
+    .state().hideCommentary().moveByRela().commentary('如果在处理事件的时候发生的异常')
+    .state().hideCommentary().moveByRela().commentary('调用 shell.print_exception 打印该异常').pushJumpFuncList('shell.print_exception(暂无链接)')
+    .state().hideCommentary().moveByRela().commentary('处理完一次循环获取的事件, 获取当前时间戳')
+    .state().hideCommentary().moveByRela().commentary('如果 asap 为 True, 说明获取事件的时候发生了 errno.EPIPE, errno.EINTR 异常, 或者是距离上次调用周期性函数超过了 TIMEOUT_PRECISION')
+    .state().hideCommentary().moveByRela().commentary('遍历 self._periodic_callbacks 中的回调函数')
+    .state().hideCommentary().moveByRela().commentary('callback()')
+    .state().hideCommentary().moveByRela().commentary('存储下来这一次调用完周期性回调函数的时间戳, 开始下一次循环')
+})();
 </script>
