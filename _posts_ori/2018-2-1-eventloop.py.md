@@ -726,6 +726,17 @@ ID: `eventloop_run-inter`
 TITLE: `eventloop run 程序执行流`
 -->
 
+### __del__
+
+在该变量被垃圾回收机制回收的时候做的事情
+
+```python
+def __del__(self):
+    self._impl.close()
+```
+
+调用 `self._impl.close` 关闭获取事件的实例, [KqueueLoop.close](#close)
+
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
 
