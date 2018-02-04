@@ -7,7 +7,11 @@ title: "eventloop.py"
 
 **_Work in progress stage 1(尚在进展中)_**
 
-* [wip](#wip)
+* [import](#import)
+* [导出](#导出)
+* [模块常量](#模块常量)
+* [class KqueueLoop](#class-kqueueloop)
+* [class EventLoop](#class-eventloop)
 
 该模块负责监听所有的 socket, 获取这些 socket 发生的事件, 然后将其分发给注册的监听器
 
@@ -461,6 +465,365 @@ def modify(self, fd, mode):
 <!-- Generate by template.js END -->
 
 
+### close
+
+#### 简介
+
+关闭该 kqueue 事件监听器
+
+```python
+def close(self):
+    self._kqueue.close()
+```
+
+#### 接收参数
+
+无
+
+class EventLoop
+----------------
+
+事件轮询器, 根据不同的平台创建不同的时间获取方式 [epoll](https://en.wikipedia.org/wiki/Epoll), kqueue(https://en.wikipedia.org/wiki/Kqueue), select(https://en.wikipedia.org/wiki/Select_(Unix)). 处理周期性的函数, 比如: 过期请求的销毁.将发生事件的文件描述符分发给相应的处理器.
+
+### \_\_init\_\_ 构造函数
+
+#### 简介
+
+处理不同的平台获取事件的不同方式, 初始化一些变量
+
+```python
+def __init__(self):
+    if hasattr(select, 'epoll'):
+        self._impl = select.epoll()
+        model = 'epoll'
+    elif hasattr(select, 'kqueue'):
+        self._impl = KqueueLoop()
+        model = 'kqueue'
+    elif hasattr(select, 'select'):
+        self._impl = SelectLoop()
+        model = 'select'
+    else:
+        raise Exception('can not find any available functions in select '
+                        'package')
+    self._fdmap = {}  # (f, handler)
+    self._last_time = time.time()
+    self._periodic_callbacks = []
+    self._stopping = False
+    logging.debug('using event model: %s', model)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+
+#### 注意点
+
+* \_fdmap 数据格式为
+    ```python
+    {
+      fd: (f, handler) # 文件描述: (文件, 该文件发生事件时的处理器)
+    }
+    ```
+
+#### 交互式程序流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="EventLoop __init__ 程序执行流" id="eventloop__init__-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def __init__(self):
+    if hasattr(select, 'epoll'):
+        self._impl = select.epoll()
+        model = 'epoll'
+    elif hasattr(select, 'kqueue'):
+        self._impl = KqueueLoop()
+        model = 'kqueue'
+    elif hasattr(select, 'select'):
+        self._impl = SelectLoop()
+        model = 'select'
+    else:
+        raise Exception('can not find any available functions in select '
+                        'package')
+    self._fdmap = {}  # (f, handler)
+    self._last_time = time.time()
+    self._periodic_callbacks = []
+    self._stopping = False
+    logging.debug('using event model: %s', model)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
+### poll
+
+#### 简介
+
+获取事件
+
+```python
+def poll(self, timeout=None):
+    events = self._impl.poll(timeout)
+    return [(self._fdmap[fd][0], fd, event) for fd, event in events]
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *timeout* 超时时间
+
+#### 解读
+
+调用 [`selv._impl.poll`](#poll-inter) 获取事件, events 为获取出来的事件列表, 格式为
+
+```python
+[(
+  fd, # 文件按描述
+  mode # 发生的事件类型
+), (
+  fd, # 文件描述符
+  mode # 发生的事件类型
+)]
+```
+
+数组推导式来获取关于该文件描述符的文件, 最后返回的数据格式为:
+
+```python
+[(
+  f, # 文件
+  fd, # 文件描述符
+  mode # 发生的事件类型
+), (
+  f, # 文件
+  fd, # 文件描述符
+  mode # 发生的事件类型
+)]
+```
+
+### add
+
+将文件加入监听序列
+
+```python
+def add(self, f, mode, handler):
+    fd = f.fileno()
+    self._fdmap[fd] = (f, handler)
+    self._impl.register(fd, mode)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *f* 文件, 可为 socket 文件
+* *mode* 监听的事件类型
+* *handler* 当 f 发生了 mode 事件时的处理器
+
+#### 交互式程序流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="eventloop add 程序执行流" id="eventloop_add-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def add(self, f, mode, handler):
+    fd = f.fileno()
+    self._fdmap[fd] = (f, handler)
+    self._impl.register(fd, mode)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
+### remove
+
+移除 f 的监听
+
+```python
+def remove(self, f):
+    fd = f.fileno()
+    del self._fdmap[fd]
+    self._impl.unregister(fd)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *f* 文件, 可为 socket 文件
+
+#### 程序执行流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="eventloop_remove 程序执行流" id="eventloop_remove-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def remove(self, f):
+    fd = f.fileno()
+    del self._fdmap[fd]
+    self._impl.unregister(fd)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
+### add_periodic
+
+添加周期性函数
+
+```python
+def add_periodic(self, callback):
+    self._periodic_callbacks.append(callback)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *callback* 回调函数
+
+### remove_periodic
+
+移除周期性函数
+
+```python
+def remove_periodic(self, callback):
+    self._periodic_callbacks.remove(callback)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *callback* 回调函数
+
+### modify
+
+修改一个 f 的监听模式
+
+```python
+def modify(self, f, mode):
+    fd = f.fileno()
+    self._impl.modify(fd, mode)
+```
+
+#### 接收参数
+
+* *self* 实例本身
+* *mode* 修改为的监听模式
+
+#### 交互式程序流
+
+
+<!-- Generate by template.js -->
+<div class="program-flow-walkthrough" data-panel-title="eventloop modify 程序执行流" id="eventloop_modify-inter">
+			<div class="program-flow-walkthrough-codesource">
+				<div class="line-highlight"></div>
+				<div class="codehilite">
+					{% highlight python %}
+def modify(self, f, mode):
+    fd = f.fileno()
+    self._impl.modify(fd, mode)
+					{% endhighlight %}
+				</div>
+			</div>
+			<table>
+				<tr class="jump-func-list">
+								<th>跳转函数列表</th>
+								<td><div class="event-loop-items">
+									<div class="event-loop-rail">
+										
+									</div>
+								</div></td>
+							</tr>
+			</table>
+			<div class="event-loop-controls">
+					    <svg viewBox="0 0 5 2">
+					      <path d="M2,0 L2,2 L0,1 z"></path>
+					      <path d="M3,0 L5,1 L3,2 z"></path>
+					      <path class="prev-btn" d="M0,0 H2.5V2H0z"></path>
+					      <path class="next-btn" d="M2.5,0 H5V2H2.5z"></path>
+					    </svg>
+					</div>
+			<div class="event-loop-commentary">
+					    <div class="event-loop-commentary-item"></div>
+					</div>
+		</div>
+<!-- Generate by template.js END -->
+
+
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
 
@@ -497,6 +860,30 @@ def modify(self, fd, mode):
   var modifyELA = $ela(modifyDOM);
 
   modifyELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('首先取消注册该文件描述符, 传入参数 fd(文件描述符)').pushJumpFuncList('self.unregister', '#unregister-inter').state().hideCommentary().moveToLine(3).commentary('然后重新注册该文件描述符, 传入参数 fd(文件描述符), mode(监听模式)').pushJumpFuncList('self.register', '#register-inter');
+})();
+;(function () {
+  var eventloop__init__DOM = $('#eventloop__init__-inter');
+  var eventloop__init__ELA = $ela(eventloop__init__DOM);
+
+  eventloop__init__ELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('select 模块如果支持 epoll').state().hideCommentary().moveToLine(3).commentary('创建 epoll, 存储在 self._impl 中').state().hideCommentary().moveToLine(4).commentary('将字符串 "epoll" 赋给 mode 变量').state().hideCommentary().moveToLine(5).commentary('select 模块如果支持 kqueue').state().hideCommentary().moveToLine(6).commentary('创建 KqueueLoop, 存储在 self_impl 中').state().hideCommentary().moveToLine(7).commentary('将字符串 "kqueue" 赋给 mode 变量').state().hideCommentary().moveToLine(8).commentary('select 模块如果支持 select').state().hideCommentary().moveToLine(9).commentary('创建 SelectLoop, 存储在 self_impl 中').state().hideCommentary().moveToLine(10).commentary('将字符串 "select" 赋给 mode 变量').state().hideCommentary().moveToLine(11).commentary('如果都不支持, 抛出错误').state().hideCommentary().moveToLine(14).commentary('_fdmap 变量, 存储 f(文件, socket类型数据或其他) -> handler(发生事件时对应的处理器)').state().hideCommentary().moveToLine(15).commentary('_last_time 储存最后一次调用周期性函数的时间, 初始化为当前时间').state().hideCommentary().moveToLine(16).commentary('_periodic_callbacks 周期性回调函数, 在处理完一个事件周期之后调用这里的所有 callback').state().hideCommentary().moveToLine(17).commentary('_stopping 变量标识是否停止轮询器, 初始化为 False').state().hideCommentary().moveToLine(18).commentary('打印使用的事件获取方式 <\'using event model: %s\', model>');
+})();
+;(function () {
+  var eventloop_addDOM = $('#eventloop_add-inter');
+  var eventloop_addELA = $ela(eventloop_addDOM);
+
+  eventloop_addELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('以 fd 为 key, 以元组 (f, handler) 为值, 存储在 self._fdmap 中').state().hideCommentary().moveToLine(4).commentary('调用 self._impl.register, 传入参数 fd, mode 来注册监听 fd 的事件 mode (以 KqueueLoop 为例)').pushJumpFuncList('self._impl.register', '#register-inter');
+})();
+;(function () {
+  var eventloop_removeDOM = $('#eventloop_remove-inter');
+  var eventloop_removeELA = $ela(eventloop_removeDOM);
+
+  eventloop_removeELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('删除 self._fdmap 中关于该文件描述符的数据').state().hideCommentary().moveToLine(4).commentary('调用 self._impl.unregister, 传入参数 fd, 来移除注册 fd 的事件(以 KqueueLoop 为例)').pushJumpFuncList('self._impl.unregister', '#unregister-inter');
+})();
+;(function () {
+  var eventloop_modifyDOM = $('#eventloop_modify-inter');
+  var eventloop_modifyELA = $ela(eventloop_modifyDOM);
+
+  eventloop_modifyELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd').state().hideCommentary().moveToLine(3).commentary('调用 self._impl.modify, 传入参数 fd, mode 来修改 fd 已经注册的事件(以 KqueueLoop 为例)').pushJumpFuncList('self._impl.modify', '#modify-inter');
 })();
 /* Transformed by babel-transform.js END */
 </script>
