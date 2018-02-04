@@ -824,6 +824,26 @@ def modify(self, f, mode):
 <!-- Generate by template.js END -->
 
 
+### stop
+
+标识 `self._stopping` 为 True, 停止轮询器, 不再获取事件.
+
+```python
+def stop(self):
+    self._stopping = True
+```
+
+### run
+
+#### 简介
+
+启动事件轮询器, 获取事件并将其分发给相应的处理器, 调用周期性的函数
+
+````python
+
+```
+
+
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
 

@@ -618,6 +618,104 @@ ID: `eventloop_modify-inter`
 TITLE: `eventloop modify 程序执行流`
 -->
 
+### stop
+
+标识 `self._stopping` 为 True, 停止轮询器, 不再获取事件.
+
+```python
+def stop(self):
+    self._stopping = True
+```
+
+### run
+
+#### 简介
+
+启动事件轮询器, 获取事件并将其分发给相应的处理器, 调用周期性的函数
+
+```python
+def run(self):
+    events = []
+    while not self._stopping:
+        asap = False
+        try:
+            events = self.poll(TIMEOUT_PRECISION) # 取出来所有发生事件的 socket
+        except (OSError, IOError) as e:
+            if errno_from_exception(e) in (errno.EPIPE, errno.EINTR):
+                # EPIPE: Happens when the client closes the connection
+                # EINTR: Happens when received a signal
+                # handles them as soon as possible
+                asap = True
+                logging.debug('poll:%s', e)
+            else:
+                logging.error('poll:%s', e)
+                traceback.print_exc()
+                continue
+
+        for sock, fd, event in events: # 事件 socket 事件文件描述符 事件模式(POLL_IN POLL_OUT)
+            handler = self._fdmap.get(fd, None) # 根据 file descriptor 获取 处理器 shadowsocks.tcpreply.TCPReply
+            if handler is not None:
+                handler = handler[1]
+                try:
+                    handler.handle_event(sock, fd, event)
+                except (OSError, IOError) as e:
+                    shell.print_exception(e)
+        now = time.time()
+        if asap or now - self._last_time >= TIMEOUT_PRECISION:
+            for callback in self._periodic_callbacks:
+                callback()
+            self._last_time = now
+```
+
+#### 接收参数
+
+* *self* 实例本身
+
+#### 交互式程序流
+
+<!-- EVENTLOOPANIMATION
+EVENTCONTENT:
+  `
+def run(self):
+    events = []
+    while not self._stopping:
+        asap = False
+        try:
+            events = self.poll(TIMEOUT_PRECISION) # 取出来所有发生事件的 socket
+        except (OSError, IOError) as e:
+            if errno_from_exception(e) in (errno.EPIPE, errno.EINTR):
+                # EPIPE: Happens when the client closes the connection
+                # EINTR: Happens when received a signal
+                # handles them as soon as possible
+                asap = True
+                logging.debug('poll:%s', e)
+            else:
+                logging.error('poll:%s', e)
+                traceback.print_exc()
+                continue
+
+        for sock, fd, event in events: # 事件 socket 事件文件描述符 事件模式(POLL_IN POLL_OUT)
+            handler = self._fdmap.get(fd, None) # 根据 file descriptor 获取 处理器 shadowsocks.tcpreply.TCPReply
+            if handler is not None:
+                handler = handler[1]
+                try:
+                    handler.handle_event(sock, fd, event)
+                except (OSError, IOError) as e:
+                    shell.print_exception(e)
+        now = time.time()
+        if asap or now - self._last_time >= TIMEOUT_PRECISION:
+            for callback in self._periodic_callbacks:
+                callback()
+            self._last_time = now
+  `
+
+CODETYPE: `python`
+
+ID: `eventloop_run-inter`
+
+TITLE: `eventloop run 程序执行流`
+-->
+
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
 
@@ -733,4 +831,11 @@ TITLE: `eventloop modify 程序执行流`
     .state().hideCommentary().moveToLine(2).commentary('获取文件 f 的文件描述符, 赋值给 fd')
     .state().hideCommentary().moveToLine(3).commentary('调用 self._impl.modify, 传入参数 fd, mode 来修改 fd 已经注册的事件(以 KqueueLoop 为例)').pushJumpFuncList('self._impl.modify', '#modify-inter')
 })();
+;(() => {
+  const eventloop_runDOM = $('#eventloop_run-inter')
+  const eventloop_runELA = $ela(eventloop_runDOM)
+
+  eventloop_runELA
+    .state()
+})()
 </script>
