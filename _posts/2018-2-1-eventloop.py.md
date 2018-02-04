@@ -480,6 +480,7 @@ class SelectLoop
 ----------------
 
 {% include eventloopanimation.html %}
+{% include dockerterminal.html %}
 
 <script>
 /* Transformed by babel-transform.js */

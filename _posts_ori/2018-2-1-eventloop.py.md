@@ -366,6 +366,7 @@ class SelectLoop
 ----------------
 
 {% include eventloopanimation.html %}
+{% include dockerterminal.html %}
 
 <script>
 ;(() => {
