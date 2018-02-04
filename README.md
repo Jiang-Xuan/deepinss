@@ -14,7 +14,7 @@ Table of Contents
 
 SSS
 =====
-[![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/)
+[![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](http://www.firsttimersonly.com/) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Jiang-Xuan/deepinss/blob/master/LICENSE)
 
 Interpretation the source code of Shadowsocks.
 
