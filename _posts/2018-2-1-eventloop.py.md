@@ -496,7 +496,7 @@ def modify(self, fd, mode):
   var modifyDOM = $('#modify-inter');
   var modifyELA = $ela(modifyDOM);
 
-  modifyELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveToLine(2).commentary('首先取消注册该文件描述符, 传入参数 fd(文件描述符)').pushJumpFuncList('self.unregister', '#unregister-inter').state().hideCommentary().moveToLine(3).commentary('然后重新注册该文件描述符, 传入参数 fd(文件描述符), mode(监听模式)').pushJumpFuncList('self.register', '#register-inter');
+  modifyELA.state().moveToLine(1).showCodeBar().commentary('执行函数').state().hideCommentary().moveByRela().commentary('首先取消注册该文件描述符, 传入参数 fd(文件描述符)').pushJumpFuncList('self.unregister', '#unregister-inter').state().hideCommentary().moveByRela().commentary('然后重新注册该文件描述符, 传入参数 fd(文件描述符), mode(监听模式)').pushJumpFuncList('self.register', '#register-inter');
 })();
 /* Transformed by babel-transform.js END */
 </script>

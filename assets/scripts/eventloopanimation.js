@@ -46,6 +46,8 @@
     this._microtasksRemoved = 0
     this._logsShown = 0
     this._currentPos = 0
+    // 当前代码移动到第几行
+    this._currentLineNumber = 0
 
     this._el.parentNode.insertBefore(newEl, this._el)
     this._el.parentNode.removeChild(this._el)
@@ -291,9 +293,27 @@
   EventLoopAnimation.prototype.moveToLine = function(num) {
     return this.action(function(animate) {
       const barHeight = this._codeBar.getBoundingClientRect().height
+      this._currentLineNumber += num
 
       return transition(this._codePane, {
         transform: `translateY(${((num - 1) * -barHeight)}px)`
+      }, .3 * animate, 'ease-in-out')
+    }.bind(this))
+  }
+
+  /**
+   * 相对移动代码
+   * num { Number } 相对于上次移动到的行数, 移动到第几行, 默认移动到下一行
+   */
+  EventLoopAnimation.prototype.moveByRela = function (num) {
+    num = num || 1
+    return this.action(function(animate) {
+      const barHeight = this._codeBar.getBoundingClientRect().height
+      this._currentLineNumber += num
+      const { _currentLineNumber } = this
+
+      return transition(this._codePane, {
+        transform: `translateY(${((_currentLineNumber - 1) * -barHeight)}px)`
       }, .3 * animate, 'ease-in-out')
     }.bind(this))
   }
