@@ -5,7 +5,7 @@ title: "eventloop.py"
 **eventloop.py** 事件轮询器
 =========================
 
-**_Work in progress stage 1(尚在进展中)_**
+** 2018.2.5 完结 **
 
 * [import](#import)
 * [导出](#导出)
@@ -965,6 +965,55 @@ def __del__(self):
 ```
 
 调用 `self._impl.close` 关闭获取事件的实例, [KqueueLoop.close](#close)
+
+errno_from_exception
+---------------------
+
+从异常对象里获取异常的 errno.
+
+来源于 [tornado](http://www.tornadoweb.org/en/stable/_modules/tornado/util.html#errno_from_exception)
+
+```python
+# from tornado
+def errno_from_exception(e):
+    """Provides the errno from an Exception object.
+
+    There are cases that the errno attribute was not set so we pull
+    the errno out of the args but if someone instatiates an Exception
+    without any args you will get a tuple error. So this function
+    abstracts all that behavior to give you a safe way to get the
+    errno.
+    """
+
+    if hasattr(e, 'errno'):
+        return e.errno
+    elif e.args:
+        return e.args[0]
+    else:
+        return None
+```
+
+### 接收参数
+
+* *e* Exception
+
+get_sock_error
+--------------
+
+获取 socket 文件的错误, 在异步处理一个 socket 文件的时候, 如果该 socket 出现了错误, 需要通过这个函数来获取错误信息.
+
+```python
+# from tornado
+def get_sock_error(sock):
+    error_number = sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+    return socket.error(error_number, os.strerror(error_number))
+```
+
+### 接受参数
+
+* *sock* socket 句柄
+
+参考连接: <https://stackoverflow.com/questions/21031717/so-error-vs-errno>
 
 {% include eventloopanimation.html %}
 {% include dockerterminal.html %}
