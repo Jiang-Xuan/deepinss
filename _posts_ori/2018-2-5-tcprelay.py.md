@@ -170,6 +170,9 @@ ID: `tcprelay-constant-explain-inter`
     .state().hideCommentary().moveByRela(2).commentary('对于每一个连接请求, 都有一个 TCP Relay Handler 来处理这个请求')
     .state().hideCommentary().moveByRela(2).commentary('对于每一个 handler, 我们都两个 socket')
     .state().hideCommentary().moveByRela().commentary('local socket, 连接 client(一般为浏览器) 的 socket')
-    .state().hideCommentary().moveByRela().commentary('server  socket, 连接 server(ssserver) 的 socket')
+    .state().hideCommentary().moveByRela().commentary('server socket, 连接 server(ssserver) 的 socket')
+    .state().hideCommentary().moveByRela(2).commentary('对于每一个 handler, 它至少应该处在以下的这几个阶段之一')
 })();
+;(() => {
+});
 </script>
