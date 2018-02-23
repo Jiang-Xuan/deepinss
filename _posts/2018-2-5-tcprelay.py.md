@@ -183,6 +183,8 @@ STAGE_DESTROYED = -1
 <!-- Generate by template.js END -->
 
 
+{% include eventloopanimation.html %}
+
 <script>
 /* Transformed by babel-transform.js */
 'use strict';
@@ -191,7 +193,8 @@ STAGE_DESTROYED = -1
   var tcprelayConstantExplainInterDOM = $('#tcprelay-constant-explain-inter');
   var tcprelayConstantExplainInterELA = $ela(tcprelayConstantExplainInterDOM);
 
-  tcprelayConstantExplainInterELA.state().moveToLine(1).showCodeBar().commentary('对于每一个监听的端口, 有一个 TCP Relay').state().hideCommentary().moveByRela(2).commentary('对于每一个连接请求, 都有一个 TCP Relay Handler 来处理这个请求').state().hideCommentary().moveByRela(2).commentary('对于每一个 handler, 我们都两个 socket').state().hideCommentary().moveByRela().commentary('local socket, 连接 client(一般为浏览器) 的 socket').state().hideCommentary().moveByRela().commentary('server  socket, 连接 server(ssserver) 的 socket');
+  tcprelayConstantExplainInterELA.state().moveToLine(1).showCodeBar().commentary('对于每一个监听的端口, 有一个 TCP Relay').state().hideCommentary().moveByRela(2).commentary('对于每一个连接请求, 都有一个 TCP Relay Handler 来处理这个请求').state().hideCommentary().moveByRela(2).commentary('对于每一个 handler, 我们都两个 socket').state().hideCommentary().moveByRela().commentary('local socket, 连接 client(一般为浏览器) 的 socket').state().hideCommentary().moveByRela().commentary('server socket, 连接 server(ssserver) 的 socket').state().hideCommentary().moveByRela(2).commentary('对于每一个 handler, 它至少应该处在以下的这几个阶段之一');
 })();
+;(function () {});
 /* Transformed by babel-transform.js END */
 </script>

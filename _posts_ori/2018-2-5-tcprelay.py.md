@@ -160,6 +160,8 @@ TITLE: `tcprelay 模块常量解释`
 ID: `tcprelay-constant-explain-inter`
 -->
 
+{% include eventloopanimation.html %}
+
 <script>
 ;(() => {
   const tcprelayConstantExplainInterDOM = $('#tcprelay-constant-explain-inter')
