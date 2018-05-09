@@ -74,5 +74,5 @@ Maintainers
 Sponsers
 --------
 
-* [15v网](https://www/vvvvvvvvvvvvvvv.com)
+* [15v网](https://www.vvvvvvvvvvvvvvv.com)
 
