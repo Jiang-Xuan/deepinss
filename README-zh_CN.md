@@ -74,3 +74,8 @@ git clone https://github.com/shadowsocks/shadowsocks.git
 --------
 
 * [Jiang Xuan](https://github.com/Jiang-Xuan)
+
+赞助者
+------
+
+* [15v网 - 免费会员 - 稳定, 免费, 高可用](https://www.vvvvvvvvvvvvvvv.com)
