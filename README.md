@@ -32,7 +32,6 @@ Introduce
 
 This project begins on December 12, 2017. Committed to making everyone understand shadowsocks source code. The project was named SSS. Understand into shadowsocks study, or study shadowsocks can be.
 
-This project is my goal to be completed by 2018.
 
 Features
 --------
