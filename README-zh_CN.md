@@ -33,7 +33,6 @@ SSS
 
 该项目始于 2017.12.13 , 致力于让每个人读懂 shadowsocks 的源码, 项目被命名为 SSS, 理解成 shadowsocks study, 或者是 study shadowsocks 都可.
 
-该项目是我定于 2018 年完成的目标.
 
 特点
 ----
