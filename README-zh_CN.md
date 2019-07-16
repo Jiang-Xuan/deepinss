@@ -1,16 +1,16 @@
 目录
 =======
 
-<ul>
-  {% for post in site.posts %}
-    <li>
-      <a href=".{{ post.url }}">{{ post.title }}</a>
-      <!-- post.url 的链接是 / 根目录 -->
-      <!-- 但是 github.io 是带有 deepinss 前缀的 -->
-      <!-- 所以这里加了个点, 表示相对路径 -->
-    </li>
-  {% endfor %}
-</ul>
+* [eventloop.py](/deepinss/2018/02/01/eventloop.py.html)
+* [local.py](/deepinss/2018/01/31/local.py.html)
+* [shell.py](/deepinss/2018/01/24/shell.py.html)
+* [If you want to keep a secret, you must also hide it from yourself. 👽](/deepinss/2018/01/15/enc.html)
+* [tcprelay 💌](/deepinss/2017/12/26/tcprelay.html)
+* [透过 C 源码🔧深入理解 python 的 select.kqueue.control 方法](/deepinss/2017/12/23/understanding-kevent-control-method.html)
+* [eventloop ♺](/deepinss/2017/12/23/eventloop.html)
+* [启动🚀 local.py](/deepinss/2017/12/16/boot-local-py.html)
+* [SS 的工作原理🌄](/deepinss/2017/12/14/ss-work-method.html)
+* [SS 目录树🌲](/deepinss/2017/12/13/ss-directory-tree.html)
 
 SSS
 ====
